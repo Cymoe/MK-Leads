@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X, Upload, Database, Calendar, AlertCircle } from 'lucide-react'
 import './ImportModal.css'
 
-function ImportModal({ type, onClose }) {
+function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
   const [activeTab, setActiveTab] = useState('manual')
   const [selectedRuns, setSelectedRuns] = useState([])
   const [apifyToken, setApifyToken] = useState('')
@@ -42,6 +42,9 @@ function ImportModal({ type, onClose }) {
     setTimeout(() => {
       console.log('Importing:', selectedRuns)
       setLoading(false)
+      if (onImportComplete) {
+        onImportComplete()
+      }
       onClose()
     }, 2000)
   }
@@ -55,13 +58,13 @@ function ImportModal({ type, onClose }) {
     })
   }
 
+  if (!isOpen) return null
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>
-            {type === 'maps' ? 'Import from Google Maps' : 'Add New Market'}
-          </h2>
+          <h2>Import Leads</h2>
           <button className="modal-close" onClick={onClose}>
             <X size={20} />
           </button>
