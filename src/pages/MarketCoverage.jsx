@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Upload, RefreshCw, ChevronRight, Search, Star, Check, Users, TrendingUp, Target, Loader, Plus } from 'lucide-react'
+import { MapPin, Upload, RefreshCw, ChevronRight, Search, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AddMarketModal from '../components/AddMarketModal'
+import ImportModal from '../components/ImportModal'
 import './MarketCoverage.css'
 
 function MarketCoverage() {
@@ -16,6 +17,8 @@ function MarketCoverage() {
   const [error, setError] = useState(null)
   const [serviceTypeCounts, setServiceTypeCounts] = useState({})
   const [showAddMarketModal, setShowAddMarketModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   
   // Map states to regions for service prioritization
   const getRegionForState = (state) => {
@@ -61,7 +64,7 @@ function MarketCoverage() {
       if (marketsError) throw marketsError
       
       // Get lead counts per market using a more efficient approach
-      const { data: leadCounts, error: leadError } = await supabase
+      let { data: leadCounts, error: leadError } = await supabase
         .rpc('get_lead_counts_by_city')
       
       if (leadError) {
@@ -94,18 +97,17 @@ function MarketCoverage() {
         
         console.log(`Fetched ${allLeads.length} total leads`)
         
-        if (fallbackError) throw fallbackError
-        
         // Count leads per city/state
         const cityLeadCounts = {}
         allLeads?.forEach(lead => {
           const key = `${lead.city}-${lead.state}`
           cityLeadCounts[key] = (cityLeadCounts[key] || 0) + 1
         })
-        leadCounts = Object.entries(cityLeadCounts).map(([key, count]) => {
+        const fallbackLeadCounts = Object.entries(cityLeadCounts).map(([key, count]) => {
           const [city, state] = key.split('-')
           return { city, state, lead_count: count }
         })
+        leadCounts = fallbackLeadCounts
       }
       
       // Convert to lookup object
@@ -311,6 +313,10 @@ function MarketCoverage() {
       ...city,
       state: state
     })
+    // Close sidebar on mobile after selection
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false)
+    }
   }
 
   const toggleServiceSelection = (serviceName) => {
@@ -468,18 +474,32 @@ function MarketCoverage() {
           </button>
           <button className="btn btn-secondary" onClick={() => setShowAddMarketModal(true)}>
             <Plus size={16} />
-            Add Market
+            <span>Add Market</span>
           </button>
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={() => setShowImportModal(true)}>
             <Upload size={16} />
-            Import Leads
+            <span>Import Leads</span>
           </button>
         </div>
       </header>
 
       <div className="content">
+        {/* Mobile Menu Toggle Button */}
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Sidebar Overlay for Mobile */}
+        <div 
+          className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+        />
+
         {/* Sidebar */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
             <h3>Markets</h3>
             <span className="total-badge">{markets.length} states</span>
@@ -736,6 +756,14 @@ function MarketCoverage() {
         onClose={() => setShowAddMarketModal(false)}
         onSuccess={fetchMarkets}
         getRegionForState={getRegionForState}
+      />
+
+      {/* Import Leads Modal */}
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        selectedMarket={selectedMarket}
+        onImportComplete={fetchMarkets}
       />
     </div>
   )

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, MapPin, Users, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import CityAutocomplete from './CityAutocomplete'
 import './AddMarketModal.css'
 
 const US_STATES = [
@@ -62,10 +63,33 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
     state: '',
     population: '',
     metroPopulation: '',
-    marketType: 'SMALL'
+    marketType: 'SMALL',
+    canonicalCityId: null
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+
+  const handleCitySelect = (city) => {
+    if (city.isCustom) {
+      // Custom city entry
+      setFormData({
+        ...formData,
+        city: city.city_name,
+        canonicalCityId: null,
+        population: '',
+        metroPopulation: ''
+      })
+    } else {
+      // Selected from canonical cities
+      setFormData({
+        ...formData,
+        city: city.city_name,
+        canonicalCityId: city.id,
+        population: city.population ? city.population.toString() : '',
+        metroPopulation: city.metro_population ? city.metro_population.toString() : ''
+      })
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -73,6 +97,52 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
     setSaving(true)
 
     try {
+      // Check if market already exists
+      const { data: existingMarket } = await supabase
+        .from('market_coverage')
+        .select('id')
+        .eq('market_name', `${formData.city}, ${formData.state}`)
+        .single()
+
+      if (existingMarket) {
+        setError('This market already exists.')
+        setSaving(false)
+        return
+      }
+
+      // If this is a new city (not from canonical), add it
+      let canonicalCityId = formData.canonicalCityId
+      
+      if (!canonicalCityId && formData.city) {
+        const { data: newCity, error: cityError } = await supabase
+          .from('canonical_cities')
+          .insert({
+            city_name: formData.city,
+            state: formData.state,
+            population: formData.population ? parseInt(formData.population) : null,
+            metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null
+          })
+          .select()
+          .single()
+
+        if (cityError) {
+          // City might already exist, try to find it
+          const { data: existingCity } = await supabase
+            .from('canonical_cities')
+            .select('id')
+            .eq('city_name', formData.city)
+            .eq('state', formData.state)
+            .single()
+
+          if (existingCity) {
+            canonicalCityId = existingCity.id
+          } else {
+            throw cityError
+          }
+        } else {
+          canonicalCityId = newCity.id
+        }
+      }
       // Determine market type based on population
       let marketType = 'SMALL'
       const pop = parseInt(formData.population)
@@ -87,17 +157,18 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
       // Get region for the state
       const region = getRegionForState(formData.state)
 
-      // Create market
+      // Create market with canonical city reference
       const { data: market, error: marketError } = await supabase
-        .from('markets')
+        .from('market_coverage')
         .insert({
-          name: formData.city,
-          state: formData.state,
-          type: marketType,
-          region: region,
+          market_name: `${formData.city}, ${formData.state}`,
+          canonical_city_id: canonicalCityId,
           population: formData.population ? parseInt(formData.population) : null,
           metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null,
-          coverage_percentage: 0
+          coverage_percentage: 0,
+          phase_1_lead_count: 0,
+          phase_2_lead_count: 0,
+          phase_3_lead_count: 0
         })
         .select()
         .single()
@@ -158,7 +229,8 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
       state: '',
       population: '',
       metroPopulation: '',
-      marketType: 'SMALL'
+      marketType: 'SMALL',
+      canonicalCityId: null
     })
     setError(null)
     onClose()
@@ -251,13 +323,13 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
               <MapPin size={16} />
               City Name
             </label>
-            <input
-              id="city"
-              type="text"
-              required
-              placeholder="e.g., Austin"
+            <CityAutocomplete
               value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              state={formData.state}
+              onChange={(value) => setFormData({ ...formData, city: value })}
+              onSelect={handleCitySelect}
+              placeholder="Search for a city..."
+              allowCustom={true}
             />
           </div>
 
@@ -310,6 +382,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
             <small>Metropolitan area population (optional)</small>
           </div>
 
+
           {error && (
             <div className="error-message">
               <AlertCircle size={16} />
@@ -321,7 +394,11 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
             <button type="button" className="btn btn-secondary" onClick={handleClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+            <button 
+              type="submit" 
+              className="btn btn-primary" 
+              disabled={saving}
+            >
               {saving ? 'Creating Market...' : 'Create Market'}
             </button>
           </div>
