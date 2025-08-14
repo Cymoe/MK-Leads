@@ -1,0 +1,178 @@
+/* CSS Variables for Design System */
+:root {
+  /* Primary Colors */
+  --color-professional-blue: #3B82F6;
+  --color-carbon-black: #111827;
+  --color-slate-gray: #1F2937;
+  --color-action-yellow: #EAB308;
+  --color-link-blue: #60A5FA;
+  --color-success-green: #10B981;
+  --color-warning-red: #EF4444;
+  --color-neutral-gray: #6B7280;
+  
+  /* Backgrounds */
+  --bg-dark: #111827;
+  --bg-medium: #1F2937;
+  --bg-light: #374151;
+  
+  /* Text Colors */
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-disabled: rgba(255, 255, 255, 0.38);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Button Base Styles */
+.btn {
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.25px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--color-action-yellow);
+  color: black;
+}
+
+.btn-primary:hover {
+  background-color: #D97706;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: black;
+}
+
+.btn-secondary:hover {
+  background-color: #F3F4F6;
+}
+
+.btn-tertiary {
+  background-color: transparent;
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  color: white;
+}
+
+.btn-tertiary:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: var(--color-professional-blue);
+}
+
+.btn-danger {
+  background-color: var(--color-warning-red);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #DC2626;
+}
+
+/* Input Styles */
+.input {
+  height: 40px;
+  padding: 0 12px;
+  background-color: var(--bg-medium);
+  border: 1px solid var(--bg-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-professional-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--bg-medium);
+  border: 1px solid var(--bg-light);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-small {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: var(--color-neutral-gray);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.badge-mega {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--color-warning-red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}

@@ -1,0 +1,313 @@
+/* Lead Export Component Styles - Construction Business Design System */
+
+.lead-export {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Roboto', sans-serif;
+  background-color: #121212;
+  min-height: 100vh;
+}
+
+.export-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.export-header h2 {
+  color: #FFFFFF;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.export-header p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  margin: 0;
+}
+
+.export-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #333333;
+  padding: 16px 24px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-weight: 500;
+  border-left: 4px solid #336699;
+}
+
+.stat-item svg {
+  color: #F9D71C;
+}
+
+.export-filters {
+  background-color: #333333;
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.export-filters h3 {
+  color: #FFFFFF;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #336699;
+  padding-bottom: 8px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group select,
+.filter-group input {
+  background-color: #1E1E1E;
+  border: 1px solid #555555;
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #336699;
+  box-shadow: 0 0 0 2px rgba(51, 102, 153, 0.2);
+}
+
+.filter-group select option {
+  background-color: #1E1E1E;
+  color: #FFFFFF;
+}
+
+.filter-checkboxes {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #336699;
+}
+
+.checkbox-label svg {
+  color: #F9D71C;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.export-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.export-btn {
+  background-color: #F9D71C;
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  min-width: 280px;
+  justify-content: center;
+}
+
+.export-btn:hover:not(:disabled) {
+  background-color: #E6C419;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(249, 215, 28, 0.3);
+}
+
+.export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: #336699;
+  color: #FFFFFF;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2A5580;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #FFFFFF;
+  border: 1px solid rgba(51, 102, 153, 0.4);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(51, 102, 153, 0.1);
+  border-color: #336699;
+}
+
+.export-status {
+  padding: 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.export-status.success {
+  background-color: rgba(56, 142, 60, 0.2);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.export-status.error {
+  background-color: rgba(211, 47, 47, 0.2);
+  color: #F44336;
+  border: 1px solid #F44336;
+}
+
+.export-status.info {
+  background-color: rgba(51, 102, 153, 0.2);
+  color: #336699;
+  border: 1px solid #336699;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lead-export {
+    padding: 16px;
+  }
+  
+  .export-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-checkboxes {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .export-btn {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .export-header h2 {
+    font-size: 24px;
+  }
+  
+  .export-header p {
+    font-size: 14px;
+  }
+  
+  .stat-item {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
