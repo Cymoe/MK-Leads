@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapPin, Loader, Check } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import './CityAutocomplete.css'
@@ -16,6 +16,7 @@ function CityAutocomplete({
   const [isLoading, setIsLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
   const dropdownRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -24,7 +25,19 @@ function CityAutocomplete({
     setInputValue(value || '')
   }, [value])
 
-  // Close dropdown when clicking outside
+  // Function to update dropdown position
+  const updateDropdownPosition = useCallback(() => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width
+      })
+    }
+  }, [])
+
+  // Close dropdown when clicking outside and handle window resize
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,14 +45,67 @@ function CityAutocomplete({
       }
     }
 
+    const handleResize = () => {
+      if (showDropdown) {
+        updateDropdownPosition()
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    window.addEventListener('resize', handleResize)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [showDropdown, updateDropdownPosition])
+
+  // Load initial cities for a state (most popular cities)
+  const loadInitialCities = useCallback(async (searchState) => {
+    if (!searchState) {
+      setSuggestions([])
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('canonical_cities')
+        .select('*')
+        .eq('state', searchState)
+        .order('population', { ascending: false })
+        .limit(15) // Show more cities initially
+
+      if (error) throw error
+
+      setSuggestions(data || [])
+      updateDropdownPosition()
+      setShowDropdown(true)
+    } catch (error) {
+      console.error('Error loading cities:', error)
+      setSuggestions([])
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
   // Search for cities
-  const searchCities = async (searchTerm, searchState) => {
-    if (!searchTerm || searchTerm.length < 2) {
+  const searchCities = useCallback(async (searchTerm, searchState) => {
+    // Don't search if no state is selected
+    if (!searchState) {
       setSuggestions([])
+      setIsLoading(false)
+      return
+    }
+    
+    // If no search term, load initial cities
+    if (!searchTerm || searchTerm.length === 0) {
+      loadInitialCities(searchState)
+      return
+    }
+
+    // If search term is too short, still show initial cities
+    if (searchTerm.length < 2) {
+      loadInitialCities(searchState)
       return
     }
 
@@ -69,7 +135,7 @@ function CityAutocomplete({
 
       let finalSuggestions = data || []
       
-      if (!exactMatch && allowCustom && searchState) {
+      if (!exactMatch && allowCustom && searchState && searchTerm.length >= 2) {
         finalSuggestions = [
           ...finalSuggestions,
           {
@@ -90,7 +156,16 @@ function CityAutocomplete({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [allowCustom, loadInitialCities])
+
+  // Load cities when state changes (without input value)
+  useEffect(() => {
+    if (state && !inputValue) {
+      // Don't auto-load, just clear suggestions until user focuses
+      setSuggestions([])
+      setShowDropdown(false)
+    }
+  }, [state, inputValue])
 
   // Debounced search
   useEffect(() => {
@@ -99,7 +174,7 @@ function CityAutocomplete({
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [inputValue, state])
+  }, [inputValue, state, searchCities])
 
   const handleInputChange = (e) => {
     const newValue = e.target.value
@@ -161,7 +236,17 @@ function CityAutocomplete({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+          onFocus={() => {
+            if (state) {
+              updateDropdownPosition()
+              if (suggestions.length > 0) {
+                setShowDropdown(true)
+              } else {
+                // Load initial cities when focusing on empty field
+                loadInitialCities(state)
+              }
+            }
+          }}
           placeholder={placeholder}
           disabled={!state}
           className="autocomplete-input"
@@ -174,7 +259,14 @@ function CityAutocomplete({
       </div>
 
       {showDropdown && suggestions.length > 0 && (
-        <div className="autocomplete-dropdown">
+        <div 
+          className="autocomplete-dropdown"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            width: `${dropdownPosition.width}px`
+          }}
+        >
           {suggestions.map((city, index) => (
             <div
               key={city.id}
@@ -189,7 +281,7 @@ function CityAutocomplete({
                 <span className="city-name">{city.city_name}</span>
                 {city.population && (
                   <span className="city-population">
-                    {formatPopulation(city.population)}
+                    {formatPopulation(city.population)} pop.
                   </span>
                 )}
               </div>
@@ -203,9 +295,13 @@ function CityAutocomplete({
         </div>
       )}
 
-      {!state && (
+      {!state ? (
         <small className="autocomplete-hint">
           Please select a state first
+        </small>
+      ) : !showDropdown && suggestions.length === 0 && !inputValue && (
+        <small className="autocomplete-hint">
+          Click to see cities in {state}
         </small>
       )}
     </div>

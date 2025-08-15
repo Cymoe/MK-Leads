@@ -61,32 +61,47 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
   const [formData, setFormData] = useState({
     city: '',
     state: '',
-    population: '',
-    metroPopulation: '',
-    marketType: 'SMALL',
-    canonicalCityId: null
+    marketType: 'MEDIUM', // Default classification
+    canonicalCityId: null,
+    population: null,
+    metroPopulation: null
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [isCustomCity, setIsCustomCity] = useState(false)
 
   const handleCitySelect = (city) => {
     if (city.isCustom) {
-      // Custom city entry
+      // Custom city entry - use default classification
+      setIsCustomCity(true)
       setFormData({
         ...formData,
         city: city.city_name,
         canonicalCityId: null,
-        population: '',
-        metroPopulation: ''
+        population: null,
+        metroPopulation: null,
+        marketType: 'MEDIUM' // Default for unknown cities
       })
     } else {
-      // Selected from canonical cities
+      // Selected from canonical cities - use actual population data
+      setIsCustomCity(false)
+      const population = city.population || 0
+      let marketType = 'SMALL'
+      if (population > 1000000) {
+        marketType = 'MEGA'
+      } else if (population > 500000) {
+        marketType = 'LARGE'
+      } else if (population > 100000) {
+        marketType = 'MEDIUM'
+      }
+      
       setFormData({
         ...formData,
         city: city.city_name,
         canonicalCityId: city.id,
-        population: city.population ? city.population.toString() : '',
-        metroPopulation: city.metro_population ? city.metro_population.toString() : ''
+        population: city.population,
+        metroPopulation: city.metro_population,
+        marketType: marketType
       })
     }
   }
@@ -96,16 +111,36 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
     setError(null)
     setSaving(true)
 
+    // Validate required fields
+    if (!formData.city || !formData.state) {
+      setError('City and state are required')
+      setSaving(false)
+      return
+    }
+
     try {
-      // Check if market already exists
+      // Generate market_id first to check for duplicates
+      const marketId = `city-${formData.city.toLowerCase().replace(/\s+/g, '-')}-${formData.state}`
+      const marketName = `${formData.city}, ${formData.state}`
+
+      // Get current user first
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        setError('You must be logged in to create a market')
+        setSaving(false)
+        return
+      }
+
+      // Check if market already exists for this user
       const { data: existingMarket } = await supabase
         .from('market_coverage')
         .select('id')
-        .eq('market_name', `${formData.city}, ${formData.state}`)
-        .single()
+        .eq('user_id', user.id)
+        .eq('market_id', marketId)
+        .maybeSingle() // Use maybeSingle() instead of single() to handle no results
 
       if (existingMarket) {
-        setError('This market already exists.')
+        setError('You have already added this market.')
         setSaving(false)
         return
       }
@@ -143,32 +178,31 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
           canonicalCityId = newCity.id
         }
       }
-      // Determine market type based on population
-      let marketType = 'SMALL'
-      const pop = parseInt(formData.population)
-      if (pop > 1000000) {
-        marketType = 'MEGA'
-      } else if (pop > 500000) {
-        marketType = 'LARGE'
-      } else if (pop > 100000) {
-        marketType = 'MEDIUM'
-      }
+      // Determine market type - must be 'city', 'metro', or 'state'
+      // For now, we'll default to 'city' since we're adding individual cities
+      const marketType = 'city'
+
 
       // Get region for the state
       const region = getRegionForState(formData.state)
 
-      // Create market with canonical city reference
+      // Create market in market_coverage table (markets is a view based on this table)
+      // Note: marketId and marketType were already generated above
       const { data: market, error: marketError } = await supabase
         .from('market_coverage')
         .insert({
-          market_name: `${formData.city}, ${formData.state}`,
+          user_id: user.id,
+          market_id: marketId,
+          market_name: marketName,
+          market_type: marketType,
           canonical_city_id: canonicalCityId,
           population: formData.population ? parseInt(formData.population) : null,
           metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null,
           coverage_percentage: 0,
           phase_1_lead_count: 0,
           phase_2_lead_count: 0,
-          phase_3_lead_count: 0
+          phase_3_lead_count: 0,
+          actual_service_types: []
         })
         .select()
         .single()
@@ -212,8 +246,20 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
 
       if (assocError) throw assocError
 
-      // Success
-      onSuccess()
+      // Use the market type we already calculated
+      const displayType = formData.marketType
+
+      // Success - call onSuccess with the new market data
+      onSuccess({
+        id: market.id,
+        name: formData.city,
+        state: formData.state,
+        type: displayType,
+        population: formData.population,
+        metro_population: formData.metroPopulation,
+        leads: 0,
+        coverage: 0
+      })
       handleClose()
     } catch (err) {
       console.error('Error creating market:', err)
@@ -227,12 +273,13 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
     setFormData({
       city: '',
       state: '',
-      population: '',
-      metroPopulation: '',
-      marketType: 'SMALL',
-      canonicalCityId: null
+      marketType: 'MEDIUM',
+      canonicalCityId: null,
+      population: null,
+      metroPopulation: null
     })
     setError(null)
+    setIsCustomCity(false)
     onClose()
   }
 
@@ -319,29 +366,25 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="city">
-              <MapPin size={16} />
-              City Name
-            </label>
-            <CityAutocomplete
-              value={formData.city}
-              state={formData.state}
-              onChange={(value) => setFormData({ ...formData, city: value })}
-              onSelect={handleCitySelect}
-              placeholder="Search for a city..."
-              allowCustom={true}
-            />
-          </div>
-
-          <div className="form-group">
             <label htmlFor="state">
-              State
+              State <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <select
               id="state"
               required
               value={formData.state}
-              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              onChange={(e) => {
+                setFormData({ 
+                  ...formData, 
+                  state: e.target.value, 
+                  city: '', 
+                  canonicalCityId: null,
+                  marketType: 'MEDIUM',
+                  population: null,
+                  metroPopulation: null
+                })
+                setIsCustomCity(false)
+              }}
             >
               <option value="">Select a state</option>
               {US_STATES.map(state => (
@@ -353,34 +396,43 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="population">
-              <Users size={16} />
-              City Population
+            <label htmlFor="city">
+              <MapPin size={16} />
+              City Name <span style={{ color: '#ef4444' }}>*</span>
             </label>
-            <input
-              id="population"
-              type="number"
-              placeholder="e.g., 950000"
-              value={formData.population}
-              onChange={(e) => setFormData({ ...formData, population: e.target.value })}
+            <CityAutocomplete
+              value={formData.city}
+              state={formData.state}
+              onChange={(value) => setFormData({ ...formData, city: value })}
+              onSelect={handleCitySelect}
+              placeholder={formData.state ? "Search for a city..." : "Select a state first"}
+              allowCustom={true}
             />
-            <small>Leave blank if unknown</small>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="metroPopulation">
-              <Users size={16} />
-              Metro Area Population
-            </label>
-            <input
-              id="metroPopulation"
-              type="number"
-              placeholder="e.g., 2200000"
-              value={formData.metroPopulation}
-              onChange={(e) => setFormData({ ...formData, metroPopulation: e.target.value })}
-            />
-            <small>Metropolitan area population (optional)</small>
-          </div>
+          {/* Market Size Classification Info */}
+          {formData.city && (
+            <div className="form-group">
+              <label>
+                <Users size={16} />
+                Market Classification
+              </label>
+              <div className="market-type-display">
+                <span className={`market-type-badge ${formData.marketType.toLowerCase()}`}>
+                  {formData.marketType} MARKET
+                </span>
+                {isCustomCity ? (
+                  <small style={{ color: '#6b7280' }}>
+                    📍 Default classification for new cities
+                  </small>
+                ) : (
+                  <small style={{ color: '#6b7280' }}>
+                    ✅ Based on city population data
+                  </small>
+                )}
+              </div>
+            </div>
+          )}
 
 
           {error && (

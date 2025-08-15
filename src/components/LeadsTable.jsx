@@ -22,7 +22,29 @@ import './LeadsTable.css'
 
 function LeadsTable() {
   const location = useLocation()
+  
+  // Get filters from both URL parameters and navigation state
+  const urlParams = new URLSearchParams(location.search)
+  const urlFilters = {
+    state: urlParams.get('state') || '',
+    city: urlParams.get('city') || '',
+    serviceType: urlParams.get('serviceType') || ''
+  }
   const navigationFilters = location.state || {}
+  
+  // Combine URL params and navigation state (URL params take precedence)
+  const initialFilters = {
+    state: urlFilters.state || navigationFilters.state || '',
+    city: urlFilters.city || navigationFilters.city || '',
+    serviceType: urlFilters.serviceType || navigationFilters.serviceType || ''
+  }
+  
+  // Debug filters (can be removed in production)
+  useEffect(() => {
+    if (initialFilters.state || initialFilters.city || initialFilters.serviceType) {
+      console.log('Leads table opened with filters:', initialFilters)
+    }
+  }, [])
   
   const [leads, setLeads] = useState([])
   const [filteredLeads, setFilteredLeads] = useState([])
@@ -34,17 +56,24 @@ function LeadsTable() {
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const [leadsPerPage] = useState(25)
+  const [leadsPerPage, setLeadsPerPage] = useState(25)
   
-  // Filters - Initialize with navigation state if available
+  // Filters - Initialize with combined filters
   const [filters, setFilters] = useState({
-    state: navigationFilters.state || '',
-    city: navigationFilters.city || '',
-    serviceType: navigationFilters.serviceType || '',
+    state: initialFilters.state,
+    city: initialFilters.city,
+    serviceType: initialFilters.serviceType,
     hasPhone: false,
     hasEmail: false,
     hasWebsite: false
   })
+  
+  // Auto-open filters if we have any filter values
+  useEffect(() => {
+    if (initialFilters.state || initialFilters.city || initialFilters.serviceType) {
+      setShowFilters(true)
+    }
+  }, []) // Only on mount
   
   // Filter options
   const [filterOptions, setFilterOptions] = useState({
@@ -59,25 +88,131 @@ function LeadsTable() {
     loadFilterOptions()
   }, [])
 
+  // Reload filter options when state changes to update city list
+  useEffect(() => {
+    loadFilterOptions()
+  }, [filters.state])
+
   // Apply search and filters when they change
   useEffect(() => {
-    applyFiltersAndSearch()
-  }, [leads, searchTerm, filters])
+    // Only apply filters if we have leads loaded
+    if (leads.length > 0 || !loading) {
+      applyFiltersAndSearch()
+    }
+  }, [leads, searchTerm, filters, loading])
 
   const loadLeads = async () => {
     try {
       setLoading(true)
       setError(null)
       
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      setLeads(data || [])
-      console.log(`Loaded ${data?.length || 0} leads from Supabase`)
+      console.log('Attempting to load leads from Supabase...')
+      console.log('Navigation filters:', navigationFilters)
+      
+      // Map UI service names to database service types
+      const serviceMapping = {
+        'Deck Builders': ['Deck builder', 'Deck contractor', 'Deck construction', 'Deck Builders'],
+        'Concrete Contractors': ['Concrete contractor', 'Concrete work', 'Concrete company', 'Contractor', 'Concrete Contractors'],
+        'Window & Door': ['Window installation service', 'Door installation', 'Window and door contractor', 'Window installer', 'Window tinting service', 'Window & Door'],
+        'Roofing Contractors': ['Roofing contractor', 'Roofer', 'Roofing company', 'Roof repair', 'Roofing Contractors'],
+        'Tree Services': ['Tree service', 'Tree removal', 'Tree trimming', 'Arborist', 'Tree Services'],
+        'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer', 'Solar Installers'],
+        'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company', 'Fence Contractors'],
+        'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair', 'Pool Builders'],
+        'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation', 'Turf Installers'],
+        'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor', 'Kitchen Remodeling'],
+        'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor', 'Bathroom Remodeling'],
+        'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General', 'Whole Home Remodel'],
+        'Home Addition': ['General contractor', 'Home addition contractor', 'Room addition', 'Construction company', 'Home Addition'],
+        'Exterior Contractors': ['Siding contractor', 'Exterior renovation', 'Exterior remodeling', 'Gutter service', 'Exterior Contractors'],
+        'Hardscape Contractors': ['Landscape designer', 'Hardscaping', 'Patio builder', 'Hardscape contractor', 'Paving contractor', 'Hardscape Contractors'],
+        'Landscaping Design': ['Landscaper', 'Landscape designer', 'Landscaping service', 'Landscape architect', 'Landscape lighting designer', 'Landscaping Design'],
+        'Outdoor Kitchen': ['Outdoor kitchen installation', 'Outdoor kitchen contractor', 'BBQ island builder', 'Outdoor Kitchen'],
+        'Painting Companies': ['Painter', 'Painting contractor', 'House painter', 'Painting Companies'],
+        'Smart Home': ['Smart home installation', 'Home automation', 'Technology installer', 'Smart Home'],
+        'Epoxy Flooring': ['Epoxy flooring contractor', 'Floor coating', 'Garage floor epoxy', 'Epoxy Flooring'],
+        'Garage Door Services': ['Garage door installer', 'Garage door repair', 'Overhead door contractor', 'Garage Door Services'],
+        'Cabinet Makers': ['Cabinet maker', 'Cabinet installer', 'Kitchen cabinet contractor', 'Cabinet Makers'],
+        'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer', 'Tile & Stone'],
+        'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving', 'Paving & Asphalt'],
+        'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company', 'Custom Home Builders'],
+        'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer', 'Flooring Contractors'],
+        'EV Charging Installation': ['EV charging installer', 'Electric vehicle charger installation', 'EV charging station', 'EV Charging Installation'],
+        'Artificial Turf Installation': ['Artificial turf installer', 'Synthetic grass installation', 'Artificial grass', 'Artificial Turf Installation'],
+        'Smart Home Installation': ['Smart home installer', 'Home automation installation', 'Connected home', 'Smart Home Installation'],
+        'Outdoor Living Structures': ['Carport and pergola builder', 'Pergola builder', 'Gazebo builder', 'Patio cover installation', 'Outdoor Living Structures'],
+        'Custom Lighting Design': ['Lighting designer', 'Lighting contractor', 'Landscape lighting', 'Custom Lighting Design'],
+        'Water Features Installation': ['Water feature installer', 'Fountain installation', 'Pond builder', 'Water Features Installation'],
+        'Outdoor Kitchen Installation': ['Outdoor kitchen builder', 'BBQ island installation', 'Patio kitchen', 'Outdoor Kitchen Installation'],
+        'Palapa/Tropical Structures': ['Palapa builder', 'Tiki hut builder', 'Tropical structure', 'Palapa/Tropical Structures']
+      }
+      
+      // Build query with filters
+      let query = supabase.from('leads').select('*', { count: 'exact' })
+      
+      if (navigationFilters.state) {
+        query = query.eq('state', navigationFilters.state)
+      }
+      
+      if (navigationFilters.city) {
+        query = query.eq('city', navigationFilters.city)
+      }
+      
+      if (navigationFilters.serviceType) {
+        const mappedTypes = serviceMapping[navigationFilters.serviceType] || [navigationFilters.serviceType]
+        query = query.in('service_type', mappedTypes)
+        console.log('Filtering by service types:', mappedTypes)
+      }
+      
+      // Execute the query to get count first
+      const { count, error: countError } = await query
+      
+      if (countError) {
+        console.error('Error getting count:', countError)
+        throw countError
+      }
+      
+      console.log('Total leads count:', count)
+      
+      // Now load all data in batches
+      let allData = []
+      const batchSize = 1000
+      
+      for (let offset = 0; offset < (count || 0); offset += batchSize) {
+        // Rebuild the same query for data fetching
+        let dataQuery = supabase.from('leads').select('*')
+        
+        if (navigationFilters.state) {
+          dataQuery = dataQuery.eq('state', navigationFilters.state)
+        }
+        
+        if (navigationFilters.city) {
+          dataQuery = dataQuery.eq('city', navigationFilters.city)
+        }
+        
+        if (navigationFilters.serviceType) {
+          const mappedTypes = serviceMapping[navigationFilters.serviceType] || [navigationFilters.serviceType]
+          dataQuery = dataQuery.in('service_type', mappedTypes)
+        }
+        
+        const { data: batch, error } = await dataQuery
+          .order('created_at', { ascending: false })
+          .range(offset, Math.min(offset + batchSize - 1, (count || 0) - 1))
+        
+        if (error) {
+          console.error('Error loading batch:', error)
+          throw error
+        }
+        
+        if (batch) {
+          allData = [...allData, ...batch]
+          console.log(`Loaded ${batch.length} leads in batch starting at ${offset}`)
+        }
+      }
+      
+      console.log('Total leads loaded:', allData.length)
+      setLeads(allData)
+      
     } catch (err) {
       console.error('Error loading leads:', err)
       setError('Failed to load leads: ' + err.message)
@@ -87,32 +222,93 @@ function LeadsTable() {
   }
 
   const loadFilterOptions = async () => {
+    // Get current URL filters for ensuring they're in the options
+    const currentUrlParams = new URLSearchParams(location.search)
+    const currentFilters = {
+      state: currentUrlParams.get('state') || '',
+      city: currentUrlParams.get('city') || '',
+      serviceType: currentUrlParams.get('serviceType') || ''
+    }
     try {
-      // Get unique states
+      // Get all US states for complete coverage
       const { data: statesData } = await supabase
-        .from('leads')
+        .from('canonical_cities')
         .select('state')
-        .not('state', 'is', null)
-        .not('state', 'eq', '')
+        .order('state')
 
-      // Get unique cities  
-      const { data: citiesData } = await supabase
+      // Get cities that actually have leads (filtered by state if selected)
+      let citiesQuery = supabase
         .from('leads')
-        .select('city')
+        .select('city, state')
         .not('city', 'is', null)
         .not('city', 'eq', '')
+        .order('city')
+      
+      // If a state is currently selected, only show cities from that state
+      if (filters.state) {
+        citiesQuery = citiesQuery.eq('state', filters.state)
+      }
+      
+      const { data: citiesData } = await citiesQuery
 
-      // Get unique service types
-      const { data: serviceTypesData } = await supabase
-        .from('leads')
-        .select('service_type')
-        .not('service_type', 'is', null)
-        .not('service_type', 'eq', '')
+      // Get service types from our master service types table (clean UI names)
+      const { data: serviceTypesData, error: serviceError } = await supabase
+        .from('service_types_master')
+        .select('name')
+        .eq('is_active', true)
+        .order('name')
+      
+      if (serviceError) {
+        console.error('Error loading service types:', serviceError)
+      }
+
+      // Use clean service type names from master table
+      const uniqueServiceTypes = serviceTypesData 
+        ? serviceTypesData.map(item => item.name)
+        : []
+      
+      console.log(`Loaded ${uniqueServiceTypes.length} service types from master table`)
+      
+      // Debug: Log service types when navigating with a filter
+      if (navigationFilters.serviceType) {
+        console.log('Navigation service type:', navigationFilters.serviceType)
+        console.log('Available service types from master:', uniqueServiceTypes)
+        console.log('Does it exist?', uniqueServiceTypes.includes(navigationFilters.serviceType))
+      }
+
+      // Ensure URL filter values are included in options even if not in current data
+      const states = [...new Set(statesData?.map(item => item.state) || [])].sort()
+      
+      // Get unique cities that have leads
+      const cities = [...new Set(citiesData?.map(item => item.city) || [])].sort()
+      
+      // Add URL filter values to options if they're not already present
+      if (currentFilters.state && !states.includes(currentFilters.state)) {
+        states.push(currentFilters.state)
+        states.sort()
+      }
+      if (currentFilters.city && !cities.includes(currentFilters.city)) {
+        cities.push(currentFilters.city)
+        cities.sort()
+      }
+      if (currentFilters.serviceType && !uniqueServiceTypes.includes(currentFilters.serviceType)) {
+        uniqueServiceTypes.push(currentFilters.serviceType)
+        uniqueServiceTypes.sort()
+      }
 
       setFilterOptions({
-        states: [...new Set(statesData?.map(item => item.state) || [])].sort(),
-        cities: [...new Set(citiesData?.map(item => item.city) || [])].sort(),
-        serviceTypes: [...new Set(serviceTypesData?.map(item => item.service_type) || [])].sort()
+        states,
+        cities,
+        serviceTypes: uniqueServiceTypes
+      })
+      
+      console.log('Filter options loaded:', {
+        statesCount: states.length,
+        citiesCount: cities.length,
+        serviceTypesCount: uniqueServiceTypes.length,
+        hasInitialState: currentFilters.state && states.includes(currentFilters.state),
+        hasInitialCity: currentFilters.city && cities.includes(currentFilters.city),
+        hasInitialServiceType: currentFilters.serviceType && uniqueServiceTypes.includes(currentFilters.serviceType)
       })
     } catch (err) {
       console.error('Error loading filter options:', err)
@@ -135,7 +331,7 @@ function LeadsTable() {
       )
     }
 
-    // Apply filters
+    // Apply filters only if they differ from navigation filters (for user-applied filters)
     if (filters.state) {
       filtered = filtered.filter(lead => lead.state === filters.state)
     }
@@ -145,9 +341,52 @@ function LeadsTable() {
     }
 
     if (filters.serviceType) {
-      filtered = filtered.filter(lead => 
-        lead.service_type?.toLowerCase().includes(filters.serviceType.toLowerCase())
-      )
+      // Map UI service names to database service types
+      const serviceMapping = {
+        'Deck Builders': ['Deck builder', 'Deck contractor', 'Deck construction', 'Deck Builders'],
+        'Concrete Contractors': ['Concrete contractor', 'Concrete work', 'Concrete company', 'Contractor', 'Concrete Contractors'],
+        'Window & Door': ['Window installation service', 'Door installation', 'Window and door contractor', 'Window installer', 'Window tinting service', 'Window & Door'],
+        'Roofing Contractors': ['Roofing contractor', 'Roofer', 'Roofing company', 'Roof repair', 'Roofing Contractors'],
+        'Tree Services': ['Tree service', 'Tree removal', 'Tree trimming', 'Arborist', 'Tree Services'],
+        'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer', 'Solar Installers'],
+        'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company', 'Fence Contractors'],
+        'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair', 'Pool Builders'],
+        'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation', 'Turf Installers'],
+        'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor', 'Kitchen Remodeling'],
+        'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor', 'Bathroom Remodeling'],
+        'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General', 'Whole Home Remodel'],
+        'Home Addition': ['General contractor', 'Home addition contractor', 'Room addition', 'Construction company', 'Home Addition'],
+        'Exterior Contractors': ['Siding contractor', 'Exterior renovation', 'Exterior remodeling', 'Gutter service', 'Exterior Contractors'],
+        'Hardscape Contractors': ['Landscape designer', 'Hardscaping', 'Patio builder', 'Hardscape contractor', 'Paving contractor', 'Hardscape Contractors'],
+        'Landscaping Design': ['Landscaper', 'Landscape designer', 'Landscaping service', 'Landscape architect', 'Landscape lighting designer', 'Landscaping Design'],
+        'Outdoor Kitchen': ['Outdoor kitchen installation', 'Outdoor kitchen contractor', 'BBQ island builder', 'Outdoor Kitchen'],
+        'Painting Companies': ['Painter', 'Painting contractor', 'House painter', 'Painting Companies'],
+        'Smart Home': ['Smart home installation', 'Home automation', 'Technology installer', 'Smart Home'],
+        'Epoxy Flooring': ['Epoxy flooring contractor', 'Floor coating', 'Garage floor epoxy', 'Epoxy Flooring'],
+        'Garage Door Services': ['Garage door installer', 'Garage door repair', 'Overhead door contractor', 'Garage Door Services'],
+        'Cabinet Makers': ['Cabinet maker', 'Cabinet installer', 'Kitchen cabinet contractor', 'Cabinet Makers'],
+        'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer', 'Tile & Stone'],
+        'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving', 'Paving & Asphalt'],
+        'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company', 'Custom Home Builders'],
+        'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer', 'Flooring Contractors'],
+        'EV Charging Installation': ['EV charging installer', 'Electric vehicle charger installation', 'EV charging station', 'EV Charging Installation'],
+        'Artificial Turf Installation': ['Artificial turf installer', 'Synthetic grass installation', 'Artificial grass', 'Artificial Turf Installation'],
+        'Smart Home Installation': ['Smart home installer', 'Home automation installation', 'Connected home', 'Smart Home Installation'],
+        'Outdoor Living Structures': ['Carport and pergola builder', 'Pergola builder', 'Gazebo builder', 'Patio cover installation', 'Outdoor Living Structures'],
+        'Custom Lighting Design': ['Lighting designer', 'Lighting contractor', 'Landscape lighting', 'Custom Lighting Design'],
+        'Water Features Installation': ['Water feature installer', 'Fountain installation', 'Pond builder', 'Water Features Installation'],
+        'Outdoor Kitchen Installation': ['Outdoor kitchen builder', 'BBQ island installation', 'Patio kitchen', 'Outdoor Kitchen Installation'],
+        'Palapa/Tropical Structures': ['Palapa builder', 'Tiki hut builder', 'Tropical structure', 'Palapa/Tropical Structures']
+      }
+      
+      const mappedTypes = serviceMapping[filters.serviceType] || [filters.serviceType]
+      
+      filtered = filtered.filter(lead => {
+        return mappedTypes.some(type => 
+          lead.service_type === type || 
+          lead.service_type?.toLowerCase() === type.toLowerCase()
+        )
+      })
     }
 
     if (filters.hasPhone) {
@@ -373,7 +612,7 @@ function LeadsTable() {
                 <td className="business-cell">
                   <div className="business-info">
                     <span className="business-name">
-                      {lead.business_name || 'Unnamed Business'}
+                      {lead.company_name || 'Unnamed Business'}
                     </span>
                     {lead.market_id && (
                       <span className="market-id">{lead.market_id}</span>
@@ -399,19 +638,30 @@ function LeadsTable() {
                     {lead.phone && (
                       <div className="contact-item">
                         <Phone size={12} />
-                        <span>{formatPhone(lead.phone)}</span>
+                        <a href={`tel:${lead.phone}`} className="contact-link phone-link">
+                          {formatPhone(lead.phone)}
+                        </a>
                       </div>
                     )}
                     {lead.email && (
                       <div className="contact-item">
                         <Mail size={12} />
-                        <span>{lead.email}</span>
+                        <a href={`mailto:${lead.email}`} className="contact-link email-link">
+                          {lead.email}
+                        </a>
                       </div>
                     )}
                     {lead.website && (
                       <div className="contact-item">
                         <Globe size={12} />
-                        <span>Website</span>
+                        <a 
+                          href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="contact-link website-link"
+                        >
+                          Website
+                        </a>
                       </div>
                     )}
                   </div>
@@ -440,17 +690,31 @@ function LeadsTable() {
           </tbody>
         </table>
 
-        {currentLeads.length === 0 && (
+        {currentLeads.length === 0 && !loading && (
           <div className="empty-state">
             <Users size={48} />
             <h3>No leads found</h3>
-            <p>Try adjusting your search or filter criteria</p>
+            {(navigationFilters.serviceType || navigationFilters.city || navigationFilters.state) ? (
+              <>
+                <p>No leads match your current filters:</p>
+                <div className="filter-info">
+                  {navigationFilters.city && <span>City: <strong>{navigationFilters.city}</strong></span>}
+                  {navigationFilters.state && <span>State: <strong>{navigationFilters.state}</strong></span>}
+                  {navigationFilters.serviceType && <span>Service: <strong>{navigationFilters.serviceType}</strong></span>}
+                </div>
+                <p className="filter-note">
+                  Note: You may need to run a search for this service type in {navigationFilters.city} to find leads.
+                </p>
+              </>
+            ) : (
+              <p>Try adjusting your search or filter criteria</p>
+            )}
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {filteredLeads.length > 0 && (
         <div className="pagination">
           <button 
             className="btn btn-secondary"
@@ -464,6 +728,26 @@ function LeadsTable() {
           <div className="page-info">
             <span>Page {currentPage} of {totalPages}</span>
             <span>({indexOfFirstLead + 1}-{Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length})</span>
+          </div>
+          
+          <div className="per-page-selector">
+            <label>Show:</label>
+            <select 
+              value={leadsPerPage} 
+              onChange={(e) => {
+                setLeadsPerPage(Number(e.target.value))
+                setCurrentPage(1) // Reset to first page when changing page size
+              }}
+              className="per-page-dropdown"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={250}>250</option>
+              <option value={500}>500</option>
+            </select>
+            <span>per page</span>
           </div>
           
           <button 
@@ -510,17 +794,40 @@ function LeadsTable() {
                 
                 <div className="detail-item">
                   <label>PHONE</label>
-                  <span>{formatPhone(selectedLead.phone)}</span>
+                  {selectedLead.phone ? (
+                    <a href={`tel:${selectedLead.phone}`} className="contact-link phone-link">
+                      {formatPhone(selectedLead.phone)}
+                    </a>
+                  ) : (
+                    <span>N/A</span>
+                  )}
                 </div>
                 
                 <div className="detail-item">
                   <label>EMAIL</label>
-                  <span>{selectedLead.email || 'N/A'}</span>
+                  {selectedLead.email ? (
+                    <a href={`mailto:${selectedLead.email}`} className="contact-link email-link">
+                      {selectedLead.email}
+                    </a>
+                  ) : (
+                    <span>N/A</span>
+                  )}
                 </div>
                 
                 <div className="detail-item">
                   <label>WEBSITE</label>
-                  <span>{selectedLead.website || 'N/A'}</span>
+                  {selectedLead.website ? (
+                    <a 
+                      href={selectedLead.website.startsWith('http') ? selectedLead.website : `https://${selectedLead.website}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="contact-link website-link"
+                    >
+                      {selectedLead.website}
+                    </a>
+                  ) : (
+                    <span>N/A</span>
+                  )}
                 </div>
                 
                 <div className="detail-item">

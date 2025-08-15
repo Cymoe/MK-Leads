@@ -1,11 +1,37 @@
+/* CSS Variables for Navigation */
+:root {
+  --bg-secondary: rgba(30, 41, 59, 0.6);
+  --bg-secondary-hover: rgba(30, 41, 59, 0.8);
+  --bg-sidebar: #1f2937;
+  --border-primary: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --border-sidebar: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --color-professional-blue: #3b82f6;
+}
+
+/* Light theme variables */
+:root.light-theme {
+  --bg-secondary: rgba(248, 250, 252, 0.9);
+  --bg-secondary-hover: rgba(241, 245, 249, 1);
+  --bg-sidebar: #f8fafc;
+  --border-primary: rgba(0, 0, 0, 0.2);
+  --border-hover: rgba(0, 0, 0, 0.3);
+  --border-sidebar: rgba(0, 0, 0, 0.18);
+  --text-primary: #1f2937;
+  --text-secondary: rgba(31, 41, 55, 0.9);
+}
+
 .navigation {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
+  gap: 16px;
+  padding: 0 16px;
   height: 56px;
   background-color: var(--bg-medium);
   border-bottom: 1px solid var(--bg-light);
+  min-width: 0; /* Prevent overflow */
 }
 
 .nav-brand {
@@ -23,6 +49,8 @@
 .nav-links {
   display: flex;
   gap: 4px;
+  flex: 0 1 auto; /* Don't grow, but can shrink */
+  min-width: 0;
 }
 
 .nav-link {
@@ -145,6 +173,247 @@
 
   .brand-text {
     font-size: 16px;
+  }
+}
+
+/* Action Buttons - Styled like navigation items */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto; /* Push to the right, but leave space for user dropdown */
+  margin-right: 8px;
+  flex-shrink: 0; /* Don't shrink these buttons */
+}
+
+.nav-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.nav-actions .btn-secondary {
+  background: rgba(55, 65, 81, 0.2);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-actions .btn-secondary:hover {
+  background: rgba(55, 65, 81, 0.4);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-actions .btn-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-professional-blue);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nav-actions .btn-primary:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* User Dropdown Styles */
+.nav-user {
+  position: relative;
+  flex-shrink: 0; /* Never shrink the user dropdown */
+  margin-left: 0;
+}
+
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.user-dropdown-trigger:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+}
+
+.user-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--color-professional-blue);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.avatar-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.dropdown-chevron {
+  transition: transform 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.dropdown-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 280px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-sidebar);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(59, 130, 246, 0.05);
+  border-bottom: 1px solid var(--border-sidebar);
+}
+
+.user-avatar-large {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.user-avatar-large .avatar-fallback {
+  font-size: 14px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-details .user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.user-email-small {
+  font-size: 12px;
+  color: var(--text-secondary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-sidebar);
+  margin: 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-secondary);
+}
+
+.dropdown-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.logout-item {
+  color: #ef4444;
+}
+
+.logout-item:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.logout-item .dropdown-item-icon {
+  color: #ef4444;
+}
+
+/* Hide user info and action buttons on mobile */
+@media (max-width: 768px) {
+  .nav-user {
+    display: none;
+  }
+  
+  .nav-actions {
+    display: none; /* Hide action buttons on mobile */
   }
 }
 

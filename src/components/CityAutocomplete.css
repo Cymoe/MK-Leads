@@ -50,17 +50,14 @@
 
 /* Dropdown */
 .autocomplete-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  position: fixed;
   max-height: 300px;
   overflow-y: auto;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .autocomplete-item {

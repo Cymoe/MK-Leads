@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Upload, RefreshCw, ChevronRight, Search, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { MapPin, Upload, RefreshCw, ChevronRight, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X, BarChart3, Info } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AddMarketModal from '../components/AddMarketModal'
 import ImportModal from '../components/ImportModal'
+import ServiceSearchModal from '../components/ServiceSearchModal'
+import MarketIntelligence from '../components/MarketIntelligence'
+import Navigation from '../components/Navigation'
+import { calculateEnhancedCoverage, coreUIServices } from '../utils/enhancedServiceMapping'
 import './MarketCoverage.css'
 
-function MarketCoverage() {
+function MarketCoverage({ session }) {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedMarket, setSelectedMarket] = useState(null)
   const [expandedStates, setExpandedStates] = useState({})
   const [selectedServices, setSelectedServices] = useState([])
@@ -18,17 +23,22 @@ function MarketCoverage() {
   const [serviceTypeCounts, setServiceTypeCounts] = useState({})
   const [showAddMarketModal, setShowAddMarketModal] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [showServiceSearchModal, setShowServiceSearchModal] = useState(false)
+  const [servicesToSearch, setServicesToSearch] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [customPriorities, setCustomPriorities] = useState(null)
+  const [selectionMode, setSelectionMode] = useState('individual') // 'individual' or 'batch'
+  const [enhancedCoverage, setEnhancedCoverage] = useState(null)
   
   // Map states to regions for service prioritization
   const getRegionForState = (state) => {
     const regions = {
-      south: ['TX', 'FL', 'GA', 'SC', 'NC', 'AL', 'MS', 'LA', 'TN', 'KY', 'AR'],
+      south: ['TX', 'FL', 'GA', 'SC', 'NC', 'AL', 'MS', 'LA', 'TN', 'KY', 'AR', 'OK', 'WV'],
       west: ['CA', 'AZ', 'NV', 'NM', 'HI'],
       northeast: ['NY', 'NJ', 'CT', 'MA', 'PA', 'VA', 'MD', 'DE', 'VT', 'NH', 'ME', 'RI'],
       midwest: ['OH', 'MI', 'IL', 'IN', 'WI', 'MN', 'IA', 'MO', 'KS', 'NE', 'ND', 'SD'],
       pacificNorthwest: ['WA', 'OR', 'ID', 'MT', 'AK'],
-      mountain: ['CO', 'UT', 'WY', 'NV', 'ID', 'MT', 'AZ', 'NM'].filter(s => !['ID', 'MT', 'AZ', 'NM'].includes(s)) // Remove overlaps
+      mountain: ['CO', 'UT', 'WY'] // Removed NV to avoid duplicate (already in west)
     }
     
     for (const [region, states] of Object.entries(regions)) {
@@ -40,8 +50,86 @@ function MarketCoverage() {
   }
   
   // Fetch actual markets from Supabase
+  // URL-based state management for selected market
+  const updateSelectedMarket = (market) => {
+    setSelectedMarket(market)
+    if (market) {
+      // Update URL with market parameters
+      const newSearchParams = new URLSearchParams(searchParams)
+      newSearchParams.set('city', market.name)
+      newSearchParams.set('state', market.state)
+      setSearchParams(newSearchParams, { replace: true })
+    } else {
+      // Remove market parameters from URL
+      const newSearchParams = new URLSearchParams(searchParams)
+      newSearchParams.delete('city')
+      newSearchParams.delete('state')
+      setSearchParams(newSearchParams, { replace: true })
+    }
+  }
+
+  // Restore selected market from URL on page load
+  const restoreMarketFromURL = () => {
+    const cityFromURL = searchParams.get('city')
+    const stateFromURL = searchParams.get('state')
+    
+    if (cityFromURL && stateFromURL && markets.length > 0) {
+      // Find the market that matches URL parameters
+      let foundMarket = null
+      
+      for (const state of Object.keys(markets)) {
+        const stateData = markets[state]
+        if (stateData && stateData.cities) {
+          foundMarket = stateData.cities.find(city => 
+            city.name === cityFromURL && state === stateFromURL
+          )
+          if (foundMarket) {
+            foundMarket.state = stateFromURL // Ensure state is set
+            break
+          }
+        }
+      }
+      
+      if (foundMarket) {
+        // Use setSelectedMarket directly here to avoid infinite loop since this is called from useEffect
+        setSelectedMarket(foundMarket)
+        // Expand the state in sidebar
+        setExpandedStates(prev => ({ ...prev, [stateFromURL]: true }))
+      }
+    }
+  }
+
   useEffect(() => {
     fetchMarkets()
+    loadCustomPriorities()
+  }, [])
+
+  // Restore market selection from URL when markets are loaded
+  useEffect(() => {
+    if (markets.length > 0) {
+      restoreMarketFromURL()
+    }
+  }, [markets])
+
+  // Listen for navigation button events
+  useEffect(() => {
+    const handleAddMarketEvent = () => {
+      setShowAddMarketModal(true)
+    }
+
+    const handleImportLeadsEvent = () => {
+      setShowImportModal(true)
+    }
+
+    // Add event listeners
+    window.addEventListener('openAddMarketModal', handleAddMarketEvent)
+    window.addEventListener('openImportLeadsModal', handleImportLeadsEvent)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('openAddMarketModal', handleAddMarketEvent)
+      window.removeEventListener('openImportLeadsModal', handleImportLeadsEvent)
+    }
   }, [])
 
   // Fetch service type counts when a market is selected
@@ -51,7 +139,30 @@ function MarketCoverage() {
     }
   }, [selectedMarket])
 
+  const loadCustomPriorities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('service_type_priorities')
+        .select('*')
+        .order('priority', { ascending: false })
+      
+      if (error) throw error
+      
+      if (data && data.length > 0) {
+        // Convert to a map for easy lookup
+        const priorityMap = {}
+        data.forEach((item, index) => {
+          priorityMap[item.service_type] = index + 1 // 1-based priority
+        })
+        setCustomPriorities(priorityMap)
+      }
+    } catch (error) {
+      console.error('Error loading custom priorities:', error)
+    }
+  }
+
   const fetchMarkets = async () => {
+    console.log('fetchMarkets called')
     try {
       setLoading(true)
       console.log('Fetching markets from Supabase...')
@@ -69,7 +180,7 @@ function MarketCoverage() {
       
       if (leadError) {
         // Fallback to manual counting if RPC doesn't exist
-        console.log('RPC failed, using fallback method')
+        console.log('RPC failed, using fallback method. Error:', leadError)
         // Supabase has a default limit of 1000, we need to get all leads
         let allLeads = []
         let rangeStart = 0
@@ -117,11 +228,57 @@ function MarketCoverage() {
         cityLeadCounts[key] = item.lead_count || 0
       })
       
-      // Group markets by state
+      // Create lookup for existing markets
+      const existingMarkets = {}
+      marketsData?.forEach(market => {
+        const key = `${market.name}-${market.state}`
+        existingMarkets[key] = market
+      })
+      
+      // Group ALL cities by state (including markets without leads)
       const parsedMarkets = {}
+      
+      // First, add all markets from the markets table
       marketsData?.forEach(market => {
         const state = market.state
-        const leadCount = cityLeadCounts[`${market.name}-${market.state}`] || 0
+        const city = market.name
+        
+        if (!parsedMarkets[state]) {
+          parsedMarkets[state] = {
+            state,
+            cities: [],
+            total: 0
+          }
+        }
+        
+        // Get lead count for this city
+        const leadCountKey = `${city}-${state}`
+        const leadCount = cityLeadCounts[leadCountKey] || 0
+        
+        parsedMarkets[state].cities.push({
+          id: market.id,
+          name: city,
+          type: market.type || 'UNKNOWN',
+          leads: leadCount,
+          coverage: market.coverage_percentage || 0,
+          population: market.population || null,
+          metroPopulation: market.metro_population || null,
+          services: market.service_types || []
+        })
+        
+        parsedMarkets[state].total += leadCount
+      })
+      
+      // Then add cities that have leads but no market record
+      leadCounts?.forEach(item => {
+        const state = item.state
+        const city = item.city
+        const leadCount = item.lead_count || 0
+        const marketKey = `${city}-${state}`
+        
+        // Skip if we already added this city from markets table
+        const existingMarket = existingMarkets[marketKey]
+        if (existingMarket) return
         
         if (!parsedMarkets[state]) {
           parsedMarkets[state] = {
@@ -132,14 +289,14 @@ function MarketCoverage() {
         }
         
         parsedMarkets[state].cities.push({
-          id: market.id,
-          name: market.name,
-          type: market.type,
+          id: `temp-${city}-${state}`,
+          name: city,
+          type: 'UNKNOWN',
           leads: leadCount,
-          coverage: market.coverage_percentage || 0,
-          population: market.population,
-          metroPopulation: market.metro_population,
-          services: market.service_types || []
+          coverage: 0,
+          population: null,
+          metroPopulation: null,
+          services: []
         })
         
         parsedMarkets[state].total += leadCount
@@ -147,20 +304,23 @@ function MarketCoverage() {
       
       // Convert to array and sort
       const marketsArray = Object.values(parsedMarkets)
-        .sort((a, b) => b.total - a.total) // Sort states by total leads
+        .sort((a, b) => a.state.localeCompare(b.state)) // Sort states alphabetically
         .map(state => ({
           ...state,
-          cities: state.cities.sort((a, b) => b.leads - a.leads) // Sort cities by leads
+          cities: state.cities.sort((a, b) => a.name.localeCompare(b.name)) // Sort cities alphabetically
         }))
       
       console.log('Markets loaded:', marketsArray)
       setMarkets(marketsArray)
       
-      // Set the first market as selected and expand its state
-      if (marketsArray.length > 0 && marketsArray[0].cities.length > 0) {
+      // Set the first market as selected and expand its state (only if no URL params exist)
+      const cityFromURL = searchParams.get('city')
+      const stateFromURL = searchParams.get('state')
+      
+      if (!cityFromURL && !stateFromURL && marketsArray.length > 0 && marketsArray[0].cities.length > 0) {
         const firstCity = marketsArray[0].cities[0]
         const firstState = marketsArray[0].state
-        setSelectedMarket({
+        updateSelectedMarket({
           ...firstCity,
           state: firstState
         })
@@ -195,9 +355,28 @@ function MarketCoverage() {
       
       setServiceTypeCounts(counts)
       console.log('Service type counts for', city, state, ':', counts)
+      
+      // Calculate enhanced coverage after service types are loaded
+      const coverage = calculateEnhancedCoverage(counts)
+      setEnhancedCoverage(coverage)
+      console.log('Enhanced coverage for', city, state, ':', coverage)
     } catch (err) {
       console.error('Error fetching service type counts:', err)
     }
+  }
+
+  // Handle refresh with selection preservation
+  const handleRefreshMarkets = () => {
+    // Refresh the markets data
+    fetchMarkets()
+    
+    // The URL parameters will be preserved and restoreMarketFromURL will be called
+    // when markets are reloaded, so the selection will be restored automatically
+  }
+
+  // Handle import completion - refresh markets while preserving selection
+  const handleImportComplete = () => {
+    handleRefreshMarkets()
   }
 
   // Complete service list including emerging services
@@ -309,7 +488,7 @@ function MarketCoverage() {
   }
 
   const handleMarketSelect = (city, state) => {
-    setSelectedMarket({
+    updateSelectedMarket({
       ...city,
       state: state
     })
@@ -328,9 +507,37 @@ function MarketCoverage() {
     })
   }
 
+
+
   const getRecommendedServices = () => {
     if (!selectedMarket) return []
     
+    // If we have custom priorities, use those
+    if (customPriorities) {
+      return allServices
+        .filter(service => {
+          // Check if this is a regional-only service
+          if (regionalOnlyServices[service.name] && 
+              !regionalOnlyServices[service.name].includes(selectedMarket.state)) {
+            return false // Don't show this service in this state
+          }
+          return true
+        })
+        .sort((a, b) => {
+          const aPriority = customPriorities[a.name] || 999
+          const bPriority = customPriorities[b.name] || 999
+          return aPriority - bPriority
+        })
+        .map(service => ({
+          ...service,
+          priority: customPriorities[service.name] ? 
+            (customPriorities[service.name] <= 8 ? 'high' : 
+             customPriorities[service.name] <= 16 ? 'medium' : 'low') : 'low',
+          region: getRegionForState(selectedMarket.state)
+        }))
+    }
+    
+    // Otherwise, use regional priorities
     const region = getRegionForState(selectedMarket.state)
     const regionPriorities = regionalServicePriorities[region] || regionalServicePriorities.south
     
@@ -375,29 +582,24 @@ function MarketCoverage() {
     // First check if the service name itself exists in the database (UI display names)
     let totalCount = serviceTypeCounts[serviceName] || 0
     
-    // If we found leads with the exact service name, return that count
-    if (totalCount > 0) {
-      return totalCount
-    }
-    
-    // Otherwise, map common service names to actual service types in the database
+    // Map UI service names to actual service types in the database
     const serviceMapping = {
       'Deck Builders': ['Deck builder', 'Deck contractor', 'Deck construction'],
-      'Concrete Contractors': ['Concrete contractor', 'Concrete work', 'Concrete company'],
-      'Window & Door': ['Window installation service', 'Door installation', 'Window and door contractor', 'Window installer'],
+      'Concrete Contractors': ['Concrete contractor', 'Concrete work', 'Concrete company', 'Contractor'],
+      'Window & Door': ['Window installation service', 'Door installation', 'Window and door contractor', 'Window installer', 'Window tinting service'],
       'Roofing Contractors': ['Roofing contractor', 'Roofer', 'Roofing company', 'Roof repair'],
       'Tree Services': ['Tree service', 'Tree removal', 'Tree trimming', 'Arborist'],
       'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer'],
       'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company'],
       'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair'],
-      'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf installation'],
+      'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation'],
       'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor'],
       'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor'],
-      'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company'],
-      'Home Addition': ['General contractor', 'Home addition contractor', 'Room addition'],
-      'Exterior Contractors': ['Siding contractor', 'Exterior renovation', 'Exterior remodeling'],
-      'Hardscape Contractors': ['Landscape designer', 'Hardscaping', 'Patio builder', 'Hardscape contractor'],
-      'Landscaping Design': ['Landscaper', 'Landscape designer', 'Landscaping service'],
+      'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General'],
+      'Home Addition': ['General contractor', 'Home addition contractor', 'Room addition', 'Construction company'],
+      'Exterior Contractors': ['Siding contractor', 'Exterior renovation', 'Exterior remodeling', 'Gutter service'],
+      'Hardscape Contractors': ['Landscape designer', 'Hardscaping', 'Patio builder', 'Hardscape contractor', 'Paving contractor'],
+      'Landscaping Design': ['Landscaper', 'Landscape designer', 'Landscaping service', 'Landscape architect', 'Landscape lighting designer'],
       'Outdoor Kitchen': ['Outdoor kitchen installation', 'Outdoor kitchen contractor', 'BBQ island builder'],
       'Painting Companies': ['Painter', 'Painting contractor', 'House painter'],
       'Smart Home': ['Smart home installation', 'Home automation', 'Technology installer'],
@@ -406,16 +608,17 @@ function MarketCoverage() {
       'Cabinet Makers': ['Cabinet maker', 'Cabinet installer', 'Kitchen cabinet contractor'],
       'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer'],
       'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving'],
-      'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder'],
+      'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company'],
       'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer']
     }
     
     // Get the mapped service types
-    const mappedTypes = serviceMapping[serviceName] || [serviceName]
+    const mappedTypes = serviceMapping[serviceName] || []
     
     // Sum up counts for all mapped service types
     mappedTypes.forEach(type => {
-      totalCount += serviceTypeCounts[type] || 0
+      const typeCount = serviceTypeCounts[type] || 0
+      totalCount += typeCount
     })
     
     return totalCount
@@ -451,7 +654,7 @@ function MarketCoverage() {
         <div className="error-state">
           <h2>Error Loading Markets</h2>
           <p>{error}</p>
-          <button className="btn btn-primary" onClick={fetchMarkets}>
+          <button className="btn btn-primary" onClick={handleRefreshMarkets}>
             Try Again
           </button>
         </div>
@@ -461,48 +664,35 @@ function MarketCoverage() {
 
   return (
     <div className="market-coverage-v2">
-      
-      {/* Header */}
-      <header className="header">
-        <div className="header-left">
-          <h1>Market Coverage</h1>
-          <p>{getTotalLeads().toLocaleString()} leads across {getTotalMarkets()} markets in {markets.length} states</p>
-        </div>
-        <div className="header-right">
-          <button className="btn-icon" onClick={fetchMarkets}>
-            <RefreshCw size={20} />
-          </button>
-          <button className="btn btn-secondary" onClick={() => setShowAddMarketModal(true)}>
-            <Plus size={16} />
-            <span>Add Market</span>
-          </button>
-          <button className="btn btn-primary" onClick={() => setShowImportModal(true)}>
-            <Upload size={16} />
-            <span>Import Leads</span>
-          </button>
-        </div>
-      </header>
+      {/* Mobile Menu Toggle Button */}
+      <button 
+        className="mobile-menu-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
 
-      <div className="content">
-        {/* Mobile Menu Toggle Button */}
-        <button 
-          className="mobile-menu-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+      {/* Sidebar Overlay for Mobile */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
 
-        {/* Sidebar Overlay for Mobile */}
-        <div 
-          className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
-          onClick={() => setSidebarOpen(false)}
-        />
-
-        {/* Sidebar */}
-        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      {/* Sidebar - Extends to absolute top */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
-            <h3>Markets</h3>
-            <span className="total-badge">{markets.length} states</span>
+            <div className="sidebar-title">
+              <h3>Markets</h3>
+              <div className="sidebar-title-right">
+                <span className="total-badge">{markets.length} states</span>
+                <button className="btn-icon-small" onClick={handleRefreshMarkets} title="Refresh Markets">
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+            </div>
+            <div className="sidebar-stats">
+              <p>{getTotalLeads().toLocaleString()} leads across {getTotalMarkets()} markets in {markets.length} states</p>
+            </div>
           </div>
           
           <div className="states-list">
@@ -555,9 +745,14 @@ function MarketCoverage() {
           </div>
         </aside>
 
-        {/* Main Content */}
+      {/* Main Content Area */}
+      <div className="content">
+        {/* Navigation - Inside content area */}
+        <Navigation session={session} />
+        
         {selectedMarket ? (
           <main className="main-content">
+            
             {/* Market Header */}
             <div className="market-header">
               <div className="market-title">
@@ -572,6 +767,10 @@ function MarketCoverage() {
                       {selectedMarket.population.toLocaleString()}
                     </span>
                   )}
+                  <span className="region-badge" title={`${getRegionForState(selectedMarket.state).toUpperCase()} region services`}>
+                    <MapPin size={14} />
+                    {getRegionForState(selectedMarket.state).toUpperCase()}
+                  </span>
                 </div>
               </div>
               <div className="market-stats">
@@ -581,18 +780,28 @@ function MarketCoverage() {
                 </div>
                 <div className="stat">
                   <span className="stat-value">{selectedMarket.coverage}%</span>
-                  <span className="stat-label">Coverage</span>
+                  <span className="stat-label">Core Coverage</span>
+                  {enhancedCoverage && (
+                    <span className="stat-detail" title={`${enhancedCoverage.coreServicesCount} of ${enhancedCoverage.totalCoreServices} core services`}>
+                      {enhancedCoverage.coreServicesCount}/{enhancedCoverage.totalCoreServices} services
+                    </span>
+                  )}
                 </div>
+                {enhancedCoverage && enhancedCoverage.otherServicesCount > 0 && (
+                  <div className="stat">
+                    <span className="stat-value">{enhancedCoverage.totalUniqueServices}</span>
+                    <span className="stat-label">Total Services</span>
+                    <span className="stat-detail" title={`${enhancedCoverage.otherServicesCount} additional + ${enhancedCoverage.unmappedServicesCount} unique`}>
+                      +{enhancedCoverage.otherServicesCount + enhancedCoverage.unmappedServicesCount} more
+                    </span>
+                  </div>
+                )}
                 {selectedMarket.metroPopulation && (
                   <div className="stat">
                     <span className="stat-value">{(selectedMarket.metroPopulation / 1000000).toFixed(1)}M</span>
                     <span className="stat-label">Metro Pop</span>
                   </div>
                 )}
-                <div className="stat">
-                  <span className="stat-value">{getRecommendedServices().length}</span>
-                  <span className="stat-label">Services</span>
-                </div>
               </div>
             </div>
 
@@ -622,15 +831,69 @@ function MarketCoverage() {
                 Instagram
                 <span className="tab-count">0</span>
               </button>
+              <button 
+                className={`phase-tab ${activePhase === 'intelligence' ? 'active' : ''}`}
+                onClick={() => setActivePhase('intelligence')}
+              >
+                <BarChart3 size={16} />
+                Market Intelligence
+              </button>
             </div>
 
-            {/* Services Grid */}
-            <div className="services-section">
+            {/* Tab Content */}
+            {activePhase === 'intelligence' && (
+              <MarketIntelligence market={selectedMarket} />
+            )}
+
+            {/* Services Grid - show for Google Maps tab */}
+            {activePhase === 'google' && (
+              <div className="services-section">
               <div className="services-header">
-                <h3>All Service Types ({getRecommendedServices().length})</h3>
-                <button className="btn-text">
-                  Run All Searches ({getRecommendedServices().filter(s => getServiceLeadCount(s.name) === 0).length} needed)
-                </button>
+                <div className="services-title-section">
+                  <h3>All Service Types ({getRecommendedServices().length})</h3>
+                  <div className="mode-toggle">
+                    <button 
+                      className={`mode-toggle-btn ${selectionMode === 'individual' ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectionMode('individual')
+                        setSelectedServices([])
+                      }}
+                    >
+                      Individual Search
+                    </button>
+                    <button 
+                      className={`mode-toggle-btn ${selectionMode === 'batch' ? 'active' : ''}`}
+                      onClick={() => setSelectionMode('batch')}
+                    >
+                      Batch Selection
+                    </button>
+                  </div>
+                  <p className="services-subtitle">
+                    {selectionMode === 'individual' ? (
+                      '🔍 Click individual "Search" buttons to find leads for each service'
+                    ) : (
+                      '☑️ Select multiple services using checkboxes, then run batch search to save time'
+                    )}
+                  </p>
+                </div>
+                {selectionMode === 'individual' && (
+                  <div className="services-actions">
+                    <button 
+                      className="btn-text"
+                      onClick={() => {
+                        const servicesWithNoLeads = getRecommendedServices()
+                          .filter(s => getServiceLeadCount(s.name) === 0)
+                          .map(s => s.name)
+                        if (servicesWithNoLeads.length > 0) {
+                          setServicesToSearch(servicesWithNoLeads)
+                          setShowServiceSearchModal(true)
+                        }
+                      }}
+                    >
+                      Run All Searches ({getRecommendedServices().filter(s => getServiceLeadCount(s.name) === 0).length} needed)
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="services-grid">
@@ -638,40 +901,56 @@ function MarketCoverage() {
                   const leadCount = getServiceLeadCount(service.name)
                   const isEmerging = service.category === 'emerging'
                   
-                  // Parse growth rate for emerging services
+                  // Parse growth rate for emerging services - clear labels
                   let growthBadge = null
                   if (isEmerging && service.growthRate) {
                     const rate = parseFloat(service.growthRate)
                     if (rate >= 15) {
-                      growthBadge = '🔥' // Hot market
+                      growthBadge = 'FAST GROWTH' // 15%+ annual growth
                     } else if (rate >= 5) {
-                      growthBadge = '📈' // Growing market
+                      growthBadge = 'STEADY GROWTH' // 5-15% annual growth
                     }
                   }
                   
                   return (
                     <div 
                       key={service.name}
-                      className={`service-card ${selectedServices.includes(service.name) ? 'selected' : ''} ${leadCount > 0 ? 'has-leads' : ''} ${isEmerging ? 'emerging' : 'established'}`}
-                      onClick={() => toggleServiceSelection(service.name)}
+                      className={`service-card ${selectionMode === 'batch' && selectedServices.includes(service.name) ? 'selected' : ''} ${leadCount > 0 ? 'has-leads' : ''} ${isEmerging ? 'emerging' : 'established'} ${selectionMode === 'batch' ? 'batch-mode' : 'individual-mode'}`}
+                      onClick={selectionMode === 'batch' ? () => toggleServiceSelection(service.name) : undefined}
+                      title={selectionMode === 'batch' ? (selectedServices.includes(service.name) ? 'Click to deselect from batch search' : 'Click to select for batch search') : undefined}
                     >
                       <div className="service-header">
                         <div className="service-left">
-                          {leadCount > 0 && (
+                          {selectionMode === 'batch' && (
+                            <div className="service-checkbox">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedServices.includes(service.name)}
+                                onChange={() => toggleServiceSelection(service.name)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          )}
+                          {leadCount > 0 && selectionMode === 'individual' && (
                             <div className="service-checkmark">
                               <Check size={14} />
                             </div>
                           )}
                           <span className="service-name">
                             {service.name}
-                            {isEmerging && <span className="emerging-badge">🆕</span>}
                           </span>
                         </div>
                         <div className="service-badges">
-                          {growthBadge && <span className="growth-badge">{growthBadge}</span>}
-                          <div className={`priority-badge ${service.priority}`}>
+                          <div className={`priority-badge ${service.priority} ${isEmerging ? 'emerging' : ''} ${growthBadge ? growthBadge.toLowerCase().replace(' ', '-') : ''}`}>
                             {service.priority === 'high' && <Star size={12} />}
-                            {service.priority}
+                            {isEmerging && growthBadge ? (
+                              growthBadge === 'FAST GROWTH' ? 'NEW & HOT' : 'NEW & GROWING'
+                            ) : isEmerging ? (
+                              'NEW SERVICE'
+                            ) : (
+                              service.priority === 'high' ? 'TOP DEMAND' : 
+                              service.priority === 'medium' ? 'GOOD DEMAND' : 'LOW DEMAND'
+                            )}
                           </div>
                         </div>
                       </div>
@@ -683,27 +962,35 @@ function MarketCoverage() {
                         </span>
                         <span className="stat-text">leads found</span>
                       </div>
-                      {getServiceLeadCount(service.name) > 0 ? (
-                        <button className="search-btn view-leads" onClick={(e) => {
+                      {selectionMode === 'individual' && (
+                        <div className="service-actions">
+                          {getServiceLeadCount(service.name) > 0 && (
+                                                    <button className="search-btn view-leads" onClick={(e) => {
                           e.stopPropagation()
-                          // Navigate to leads table with filters
-                          navigate('/leads', { 
-                            state: { 
-                              city: selectedMarket.name,
-                              state: selectedMarket.state,
-                              serviceType: service.name
-                            } 
+                          // Open leads table in new tab with filters
+                          const params = new URLSearchParams({
+                            city: selectedMarket.name,
+                            state: selectedMarket.state,
+                            serviceType: service.name
                           })
+                          window.open(`/leads?${params.toString()}`, '_blank')
                         }}>
-                          View Leads →
+                          View Leads
                         </button>
-                      ) : (
-                        <button className="search-btn" onClick={(e) => {
-                          e.stopPropagation()
-                          console.log(`Need to search for ${service.name} in ${selectedMarket.name}`)
-                        }}>
-                          Search →
-                        </button>
+                          )}
+                          <button className="search-btn" onClick={(e) => {
+                            e.stopPropagation()
+                            setServicesToSearch([service.name])
+                            setShowServiceSearchModal(true)
+                          }}>
+                            {getServiceLeadCount(service.name) > 0 ? 'Search More' : 'Search'}
+                          </button>
+                        </div>
+                      )}
+                      {selectionMode === 'batch' && (
+                        <div className="batch-mode-indicator">
+                          <span className="batch-text">Select to include in batch search</span>
+                        </div>
                       )}
                     </div>
 
@@ -711,7 +998,7 @@ function MarketCoverage() {
                     {isEmerging && service.marketSize && (
                       <div className="service-metadata">
                         <span className="metadata-item">
-                          {service.growthRate && `${service.growthRate} CAGR`}
+                          {service.growthRate && `${service.growthRate} Annual Growth`}
                         </span>
                         <span className="metadata-item">
                           {service.marketSize}
@@ -719,25 +1006,67 @@ function MarketCoverage() {
                       </div>
                     )}
 
-                      {selectedServices.includes(service.name) && (
-                        <div className="service-selected">
-                          <Check size={16} />
-                        </div>
-                      )}
+
                     </div>
                   )
                 })}
               </div>
 
-              {selectedServices.length > 0 && (
+              {selectionMode === 'batch' && selectedServices.length > 0 && (
                 <div className="selection-actions">
-                  <span>{selectedServices.length} services selected</span>
-                  <button className="btn btn-primary">
-                    Run Selected Searches
-                  </button>
+                  <div className="selection-info">
+                    <div className="selection-count">
+                      <Check size={16} className="selection-icon" />
+                      <span className="selection-text">
+                        <strong>{selectedServices.length}</strong> service{selectedServices.length === 1 ? '' : 's'} selected
+                      </span>
+                    </div>
+                    <button 
+                      className="btn-text clear-selection"
+                      onClick={() => setSelectedServices([])}
+                    >
+                      Clear Selection
+                    </button>
+                  </div>
+                  <div className="selection-actions-buttons">
+                    <button 
+                      className="btn btn-secondary"
+                      onClick={() => setSelectedServices([])}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      className="btn btn-primary"
+                      onClick={() => {
+                        setServicesToSearch(selectedServices)
+                        setShowServiceSearchModal(true)
+                      }}
+                    >
+                      🚀 Run Batch Search ({selectedServices.length} services)
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
+            )}
+
+            {/* Facebook Ads Tab */}
+            {activePhase === 'facebook' && (
+              <div className="tab-content-placeholder">
+                <Target size={48} />
+                <h3>Facebook Ads Integration</h3>
+                <p>Coming soon! Track and import leads from Facebook Ads campaigns.</p>
+              </div>
+            )}
+
+            {/* Instagram Tab */}
+            {activePhase === 'instagram' && (
+              <div className="tab-content-placeholder">
+                <TrendingUp size={48} />
+                <h3>Instagram Marketing</h3>
+                <p>Coming soon! Discover and engage with prospects on Instagram.</p>
+              </div>
+            )}
           </main>
         ) : (
           <main className="main-content">
@@ -754,7 +1083,23 @@ function MarketCoverage() {
       <AddMarketModal 
         isOpen={showAddMarketModal}
         onClose={() => setShowAddMarketModal(false)}
-        onSuccess={fetchMarkets}
+        onSuccess={(newMarket) => {
+          // Refresh markets list
+          handleRefreshMarkets()
+          
+          // Select the newly created market
+          if (newMarket) {
+            updateSelectedMarket({
+              ...newMarket,
+              state: newMarket.state
+            })
+            // Expand the state group
+            setExpandedStates(prev => ({
+              ...prev,
+              [newMarket.state]: true
+            }))
+          }
+        }}
         getRegionForState={getRegionForState}
       />
 
@@ -763,7 +1108,23 @@ function MarketCoverage() {
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         selectedMarket={selectedMarket}
-        onImportComplete={fetchMarkets}
+        onImportComplete={handleImportComplete}
+      />
+
+      {/* Service Search Modal */}
+      <ServiceSearchModal
+        isOpen={showServiceSearchModal}
+        onClose={() => {
+          setShowServiceSearchModal(false)
+          setServicesToSearch([])
+          setSelectedServices([])
+        }}
+        selectedMarket={selectedMarket}
+        selectedServices={servicesToSearch}
+        onSearchComplete={() => {
+          handleRefreshMarkets()
+          fetchServiceTypeCounts(selectedMarket.name, selectedMarket.state)
+        }}
       />
     </div>
   )
