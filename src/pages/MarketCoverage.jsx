@@ -973,7 +973,9 @@ function MarketCoverage({ session }) {
                             state: selectedMarket.state,
                             serviceType: service.name
                           })
-                          window.open(`/leads?${params.toString()}`, '_blank')
+                          // Use current domain for both local and production
+                          const url = `${window.location.origin}/leads?${params.toString()}`
+                          window.open(url, '_blank')
                         }}>
                           View Leads
                         </button>

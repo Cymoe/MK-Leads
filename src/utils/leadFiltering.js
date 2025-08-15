@@ -70,6 +70,7 @@ export const serviceSpecificExclusions = {
     // Public pools and aquatic centers
     'aquatic center', 'public pool', 'public swimming',
     'city pool', 'county pool', 'municipal pool',
+    'aquatic complex', 'kroc center', 'salvation army',
     // Swim clubs and country clubs
     'swim club', 'country club', 'racquet club', 'tennis club',
     'golf club', 'athletic club', 'health club',
@@ -93,7 +94,10 @@ export const serviceSpecificExclusions = {
     'downs pool', 'estates pool', 'sportsplex',
     // Specific problematic names
     'eliza pool park', 'millbrook exchange park',
-    'biltmore hills park', 'orange county sportsplex'
+    'biltmore hills park', 'orange county sportsplex',
+    // Resorts and rentals
+    'resort & spa', 'vacations resort', 'swimply', 'pool rental',
+    'event space', 'bluegreen vacations'
   ],
   
   'Roofing Contractors': [
