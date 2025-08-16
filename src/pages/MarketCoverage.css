@@ -423,6 +423,39 @@
   padding: 24px 32px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-sidebar);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  background: rgba(31, 41, 57, 0.95); /* Semi-transparent for better effect */
+  transition: all 0.3s ease;
+}
+
+.market-header.condensed {
+  padding: 8px 32px; /* Even more reduced padding when condensed */
+}
+
+.market-header.condensed .market-title {
+  margin-bottom: 0; /* Remove bottom margin when condensed */
+  flex-direction: row; /* Horizontal layout when condensed */
+  justify-content: space-between;
+  align-items: center;
+}
+
+.market-header.condensed .market-title h2 {
+  font-size: 16px; /* Much smaller title when condensed */
+  margin: 0;
+}
+
+.market-header.condensed .market-badges {
+  gap: 6px; /* Even tighter spacing for badges when condensed */
+}
+
+.market-header.condensed .market-badges .type-badge,
+.market-header.condensed .market-badges .pop-badge,
+.market-header.condensed .market-badges .region-badge {
+  font-size: 10px; /* Smaller badge text when condensed */
+  padding: 2px 6px; /* Smaller badge padding when condensed */
 }
 
 .market-title {
@@ -529,6 +562,60 @@
   padding: 0 32px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-sidebar);
+  position: sticky;
+  top: 140px; /* Position below the normal header */
+  z-index: 40;
+  backdrop-filter: blur(10px);
+  background: rgba(31, 41, 57, 0.95); /* Semi-transparent for better effect */
+  transition: top 0.3s ease; /* Smooth transition when header condenses */
+}
+
+/* Adjust phase tabs position when header is condensed */
+.market-header.condensed + .phase-tabs {
+  top: 32px; /* Position below the condensed header (8px padding * 2 + ~16px text height) */
+}
+
+/* Default: Show full text */
+.phase-tab .tab-text-full {
+  display: inline;
+}
+
+.phase-tab .tab-text-medium {
+  display: none;
+}
+
+.phase-tab .tab-text-short {
+  display: none;
+}
+
+/* Medium screens: Show medium text */
+@media (max-width: 1200px) {
+  .phase-tab .tab-text-full {
+    display: none;
+  }
+  
+  .phase-tab .tab-text-medium {
+    display: inline;
+  }
+  
+  .phase-tab .tab-text-short {
+    display: none;
+  }
+}
+
+/* Small screens: Show short text */
+@media (max-width: 900px) {
+  .phase-tab .tab-text-full {
+    display: none;
+  }
+  
+  .phase-tab .tab-text-medium {
+    display: none;
+  }
+  
+  .phase-tab .tab-text-short {
+    display: inline;
+  }
 }
 
 .phase-tab {
@@ -1204,24 +1291,7 @@
     left: 0;
   }
 
-  /* Mobile Menu Toggle Button */
-  .mobile-menu-toggle {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    z-index: 999;
-    cursor: pointer;
-  }
+
 
   /* Sidebar Overlay */
   .sidebar-overlay {
@@ -1242,12 +1312,43 @@
   /* Main Content Full Width on Mobile */
   .main-content {
     width: 100%;
-    padding-bottom: 100px; /* Space for floating button */
   }
 
   /* Mobile Market Header */
   .market-header {
     padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    background: rgba(31, 41, 57, 0.95); /* Semi-transparent for better effect */
+    transition: all 0.3s ease;
+  }
+
+  .market-header.condensed {
+    padding: 6px 16px; /* Even more reduced padding on mobile */
+  }
+
+  .market-header.condensed .market-title {
+    flex-direction: row; /* Horizontal layout on mobile too */
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .market-header.condensed .market-title h2 {
+    font-size: 14px; /* Much smaller title on mobile when condensed */
+    margin: 0;
+  }
+
+  .market-header.condensed .market-badges {
+    gap: 4px; /* Very tight spacing on mobile */
+  }
+
+  .market-header.condensed .market-badges .type-badge,
+  .market-header.condensed .market-badges .pop-badge,
+  .market-header.condensed .market-badges .region-badge {
+    font-size: 9px; /* Extra small badge text on mobile when condensed */
+    padding: 1px 4px; /* Extra small badge padding on mobile */
   }
 
   .market-title {
@@ -1285,6 +1386,17 @@
     padding: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    position: sticky;
+    top: 120px; /* Position below the normal mobile header */
+    z-index: 40;
+    backdrop-filter: blur(10px);
+    background: rgba(31, 41, 57, 0.95); /* Semi-transparent for better effect */
+    transition: top 0.3s ease; /* Smooth transition when header condenses */
+  }
+
+  /* Adjust mobile phase tabs position when header is condensed */
+  .market-header.condensed + .phase-tabs {
+    top: 26px; /* Position below the condensed mobile header (6px padding * 2 + ~14px text height) */
   }
 
   .phase-tab {
@@ -1296,6 +1408,15 @@
 
   .phase-tab svg {
     display: none; /* Hide icons in tabs on mobile */
+  }
+
+  /* Shorten tab text on smaller screens */
+  .phase-tab .tab-text-full {
+    display: none;
+  }
+  
+  .phase-tab .tab-text-short {
+    display: inline;
   }
 
   /* Mobile Services Section */
@@ -1554,4 +1675,43 @@
   font-style: italic;
   margin-top: 2px;
   display: block;
+}
+
+/* Sidebar Footer for Mobile Logout */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-sidebar);
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ef4444;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.user-info {
+  margin-top: 8px;
+  padding: 8px 0;
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.8;
 }

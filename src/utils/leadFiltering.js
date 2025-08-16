@@ -8,7 +8,9 @@ export const universalExclusions = [
   'building supply', 'lumber', 'home depot', 'lowes', 'menards', 'ace hardware',
   'home center', 'wholesale', 'distributor', 'distribution',
   'showroom', 'retail store', 'retailer', 'depot usa',
-  'equipment rental', 'tool rental', 'sanitary supply', 'supply',
+  'equipment rental', 'tool rental', 'sanitary supply',
+  'bob mills furniture', 'furniture store', 'furniture mart',
+  'habitat for humanity', 'habitat restore',
   
   // Manufacturing indicators
   'manufacturer', 'manufacturing', 'factory', 'production facility',
@@ -22,7 +24,117 @@ export const universalExclusions = [
   'catering', 'food', 'dining', 'bistro', 'grill', 'tavern',
   
   // Other non-service indicators
-  'supplier', 'vendor', 'appliances llc', 'appliance store'
+  'supplier', 'vendor', 'appliances llc', 'appliance store',
+  'restore', 'thrift store', 'thrift shop', 'secondhand',
+  'custom maids', 'maid service', 'cleaning service', 'janitorial',
+  'home boutique', 'design boutique', 'interior boutique', 'decor boutique',
+  'wood company', 'wood co', 'lumber company', 'timber company',
+  'design showroom', 'design gallery', 'decor store', 'decorating store',
+  'home decor', 'home accessories', 'home furnishings',
+  'gift shop', 'gift store', 'souvenir', 'novelty shop',
+  
+  // Tool and equipment stores/rentals
+  'northern tool', 'harbor freight', 'grainger', 'fastenal',
+  'tool store', 'tools store', 'equipment store', 'rental center',
+  'rent-a-center', 'rental store', 'equipment sales', 'tool sales',
+  'united rentals', 'sunbelt rentals', 'hertz equipment',
+  'home depot rental', 'lowes rental', 'tool depot',
+  'equipment company', 'tools & equipment', 'industrial supply',
+  'industrial tool', 'contractor supply', 'builder supply',
+  'northern tool + equipment', 'northern tool+equipment',
+  
+  // Property management companies (not service providers)
+  'property management', 'property manager', 'management company',
+  'realty management', 'real estate management', 'apartment management',
+  'hoa management', 'condo management',
+  
+  // Hotels and lodging (not service providers)
+  'hotel', 'motel', 'inn', 'lodge', 'resort', 'suites',
+  'wyndham', 'marriott', 'hilton', 'holiday inn', 'best western',
+  'comfort inn', 'days inn', 'super 8', 'econo lodge', 'la quinta',
+  
+  // Car dealerships (not service providers)
+  'chevrolet', 'ford', 'toyota', 'honda', 'nissan', 'mazda',
+  'hyundai', 'kia', 'volkswagen', 'bmw', 'mercedes', 'audi',
+  'car dealership', 'auto dealership', 'automotive dealership',
+  'car sales', 'auto sales', 'autonation',
+  
+  // Auto parts stores (retail, not service)
+  'o\'reilly auto parts', 'oreilly auto', 'autozone', 'advance auto',
+  'napa auto parts', 'auto parts store', 'parts store', 'auto parts',
+  'automotive parts', 'car parts', 'truck parts', 'parts plus',
+  'parts america', 'parts warehouse', 'parts depot',
+  'auto supply', 'automotive supply', 'car accessories', 'auto accessories',
+  'performance parts', 'aftermarket parts', 'auto equipment',
+  
+  // Car washes (not home service providers)
+  'car wash', 'carwash', 'auto wash', 'quick quack', 'mister car wash',
+  'express wash', 'drive through wash', 'automatic wash', 'touchless wash',
+  'wash club', 'wash express', 'wash center', 'detail wash', 'wash tunnel',
+  'wash bay', 'wash station', 'mobile wash', 'truck wash',
+  
+  // Gas stations and convenience stores
+  'toot\'n totum', 'toot n totum', 'gas station', 'convenience store',
+  '7-eleven', 'circle k', 'quiktrip', 'racetrac', 'wawa', 'sheetz',
+  'valero', 'shell station', 'exxon', 'mobil station', 'chevron station',
+  'fuel station', 'petrol station', 'filling station', 'service station store',
+  'kwik stop', 'quick stop', 'ez mart', 'speedway', 'casey\'s general',
+  'stripes', 'allsup\'s', 'ampm', 'arco', 'bp station', 'citgo',
+  'conoco', 'phillips 66', 'sinclair', 'sunoco', 'texaco', 'marathon',
+  
+  // Museums and entertainment venues
+  'museum', 'hall of fame', 'gallery', 'theater', 'theatre',
+  
+  // Shopping centers, malls, and retail complexes
+  'shopping center', 'shopping centre', 'shopping mall', 'outlet mall',
+  'marketplace shopping', 'shopping district', 'retail center',
+  'strip mall', 'strip center', 'outlet stores', 'factory stores',
+  'highland park village', 'town center shopping', 'the shops at',
+  'the mall at', 'the plaza at', 'the promenade', 'the galleria',
+  'the pavilion at', 'the marketplace at', 'the commons at',
+  
+  // Storage facilities (not service providers)
+  'storage unit', 'self storage', 'storage facility', 'mini storage',
+  'public storage', 'extra space', 'cubesmart', 'life storage',
+  
+  // Banks and financial institutions  
+  'bank', 'credit union', 'financial services', 'mortgage company',
+  'wells fargo', 'bank of america', 'chase bank', 'citibank',
+  'receivership', 'receiver', 'bankruptcy', 'trustee', 'liquidation',
+  'debt collection', 'collections agency', 'financial receiver',
+  'court receiver', 'asset management', 'insolvency',
+  'financial advisor', 'investment', 'wealth management', 'financial planning',
+  'tax service', 'tax preparation', 'accounting', 'bookkeeping', 'cpa',
+  
+  // Legal services
+  'law firm', 'attorney', 'lawyer', 'legal services', 'law office',
+  'legal counsel', 'paralegal', 'litigation', 'law group',
+  'dale williams', // Specific exclusion - receivership service
+  
+  // Insurance and real estate offices
+  'insurance agency', 'insurance company', 'state farm', 'allstate',
+  'real estate office', 'realty', 'realtors', 'real estate agency',
+  'real estate agent', 'realtor', 'remax', 're/max', 'coldwell banker',
+  'keller williams', 'century 21', 'berkshire hathaway',
+  'pamela r. vaughn', 'pamela vaughn', '806homes', // Specific exclusion - real estate agent
+  
+  // Medical and healthcare facilities
+  'hospital', 'clinic', 'medical center', 'urgent care', 'emergency room',
+  'doctor office', 'dentist office', 'veterinary', 'pharmacy',
+  
+  // Educational institutions
+  'school', 'university', 'college', 'academy', 'institute',
+  'learning center', 'daycare', 'preschool', 'kindergarten',
+  
+  // Government buildings
+  'city hall', 'courthouse', 'dmv', 'post office', 'usps',
+  'police station', 'fire station', 'library', 'municipal',
+  
+  // Aviation and aerospace (not home/commercial services)
+  'aerospace', 'aviation', 'aircraft', 'airplane', 'airport',
+  'hangar', 'runway', 'terminal', 'airline', 'airways',
+  'jet', 'helicopter', 'flight', 'pilot', 'avionics',
+  'propeller', 'fuselage', 'cockpit', 'air force', 'airfield'
 ];
 
 // Service-specific exclusions
@@ -31,7 +143,10 @@ export const serviceSpecificExclusions = {
     'art gallery', 'art studio', 'art center', 'art experience',
     'art museum', 'art shop', 'art store', 'art bar',
     'paint store', 'paint shop', 'sherwin williams', 'benjamin moore',
-    'craft store', 'hobby lobby', 'michaels', 'gallery', 'paint supply',
+    'kelly-moore paints', 'kelly moore', 'behr paint', 'ppg paints', 'ace paint',
+    'h i s paint', 'his paint', 'h.i.s. paint', 'h.i.s paint',
+    'paint supply', 'paint supplier', 'paint wholesale', 'paint retail',
+    'craft store', 'hobby lobby', 'michaels', 'gallery',
     'paint & decorating', 'home center paint', 'cooperative gallery',
     'wild at art', 'kidzart', 'artspace', 'art workshop', 'diy studio',
     'craft studio', 'pottery', 'face painting', 'fine art painting',
@@ -200,7 +315,45 @@ export const serviceSpecificExclusions = {
   
   'Artificial Turf Installation': [
     'turf supply', 'turf dealer', 'turf wholesale',
-    'synthetic grass dealer'
+    'synthetic grass dealer', 'turf equipment', 'turf sprayer',
+    // Hotels and lodging
+    'la quinta inn', 'drury inn', 'motel 6', 'doubletree',
+    'inn & suites', 'inn suites', 'extend a suites',
+    // Restaurants  
+    'steakhouse', 'bbq', 'waffle house', 'popeyes', 'taco spot',
+    'burger mania', 'quik burrito', 'tacos y mariscos', 'tacos',
+    'texas roadhouse', 'sports bar', 'banquet hall', 'surf and turf',
+    // Retail/services
+    'auto parts', 'walmart', 'sam\'s club', 'sams club', 'sun devil auto',
+    'moneygram', 'sporting goods', 'tax service', 't-mobile',
+    'quick-tag', 'coinstar', 'vision & glasses', 'optical center',
+    'floral', 'gas station',
+    // Medical
+    'od', 'dds', 'dvm', 'hearing center', 'dr.', 'doctor',
+    // Water services
+    'primo water', 'water exchange', 'water refill',
+    // Auto dealers
+    'lincoln', 'sanderson',
+    // Other
+    'higi', 'passport photos', 'phone repair', 'lash studio',
+    'soccer shop', 'rentals', 'coaching', 'training',
+    'vasa fitness', 'fitness',
+    // Nurseries (not installers)
+    'nursery', 'nurseries', 'landscape centers',
+    // Non-turf companies
+    'stone company', 'fire bowls', 'stabilizer solutions',
+    // Parks and sports facilities
+    'park', 'public park', 'sports complex field', 'soccer field',
+    'sports complex', 'sports centre', 'sports center',
+    'golf course', 'country club', 'basin',
+    // Schools and educational facilities
+    'high school', 'track and field', 'school field',
+    // Government facilities
+    'phoenix.gov', '.gov/',
+    // Horse racing/gambling
+    'turf paradise', 'sportsbook', 'betting',
+    // Services (not installation)
+    'turfwash', 'turf wash', 'turf cleaning'
   ],
   
   'Outdoor Kitchen': [

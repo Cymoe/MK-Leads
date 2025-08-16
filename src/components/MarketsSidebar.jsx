@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Search, ChevronRight, ChevronDown } from 'lucide-react'
+import { Search, ChevronRight, ChevronDown, LogOut } from 'lucide-react'
 import './MarketsSidebar.css'
 
-function MarketsSidebar({ markets, selectedMarket, onSelectMarket, expandedStates, onToggleState, getTotalLeads, getTotalCities }) {
+function MarketsSidebar({ markets, selectedMarket, onSelectMarket, expandedStates, onToggleState, getTotalLeads, getTotalCities, onLogout, user }) {
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleCityClick = (city, state) => {
@@ -92,6 +92,19 @@ function MarketsSidebar({ markets, selectedMarket, onSelectMarket, expandedState
           </div>
         ))}
       </div>
+      
+      {/* Mobile Logout Button */}
+      {onLogout && user && (
+        <div className="sidebar-footer">
+          <button className="logout-button" onClick={onLogout}>
+            <LogOut size={16} />
+            <span>Sign Out</span>
+          </button>
+          <div className="user-info">
+            <span className="user-email">{user.email}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload } from 'lucide-react'
+import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import CryptoJS from 'crypto-js'
 import './Navigation.css'
 
-function Navigation({ session }) {
+function Navigation({ session, sidebarOpen, setSidebarOpen }) {
   const location = useLocation()
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark'
@@ -91,9 +91,6 @@ function Navigation({ session }) {
 
   return (
     <nav className="navigation">
-      <div className="nav-brand">
-        <span className="brand-text">LeadTracker</span>
-      </div>
       <div className="nav-links">
         <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <MapPin size={18} />
@@ -122,11 +119,11 @@ function Navigation({ session }) {
       {session && showActionButtons && (
         <div className="nav-actions">
           <button className="btn btn-secondary" onClick={handleAddMarket}>
-            <Plus size={14} />
+            <Plus size={12} />
             <span>Add Market</span>
           </button>
           <button className="btn btn-primary" onClick={handleImportLeads}>
-            <Upload size={14} />
+            <Upload size={12} />
             <span>Import Leads</span>
           </button>
         </div>
@@ -220,6 +217,16 @@ function Navigation({ session }) {
             </div>
           )}
         </div>
+      )}
+      
+      {/* Mobile Menu Toggle - Top right corner */}
+      {session && (
+        <button 
+          className="mobile-menu-toggle-nav"
+          onClick={() => setSidebarOpen && setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
+        </button>
       )}
     </nav>
   )

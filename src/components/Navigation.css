@@ -26,12 +26,14 @@
 .navigation {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 16px;
+  gap: 12px;
+  padding: 0 12px;
   height: 56px;
   background-color: var(--bg-medium);
   border-bottom: 1px solid var(--bg-light);
   min-width: 0; /* Prevent overflow */
+  overflow: hidden; /* Prevent content overflow */
+  position: relative; /* For absolute positioning of hamburger menu */
 }
 
 .nav-brand {
@@ -48,7 +50,7 @@
 
 .nav-links {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   flex: 0 1 auto; /* Don't grow, but can shrink */
   min-width: 0;
 }
@@ -56,14 +58,16 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   color: var(--text-secondary);
   text-decoration: none;
   border-radius: 6px;
   transition: all var(--transition-fast);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0; /* Prevent nav links from shrinking */
 }
 
 .nav-link:hover {
@@ -176,6 +180,32 @@
   }
 }
 
+/* Mobile Menu Toggle in Navigation - Between actions and user */
+.mobile-menu-toggle-nav {
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 15; /* Above everything else in navigation */
+  background: rgba(55, 65, 81, 0.1); /* Slight background to make it more visible */
+}
+
+.mobile-menu-toggle-nav:hover {
+  background: rgba(55, 65, 81, 0.3);
+  color: var(--text-primary);
+}
+
 /* Action Buttons - Styled like navigation items */
 .nav-actions {
   display: flex;
@@ -189,16 +219,17 @@
 .nav-actions .btn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
   white-space: nowrap;
   text-decoration: none;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .nav-actions .btn-secondary {
@@ -229,6 +260,7 @@
   position: relative;
   flex-shrink: 0; /* Never shrink the user dropdown */
   margin-left: 0;
+  z-index: 10; /* Ensure user dropdown stays above other elements */
 }
 
 .user-dropdown-trigger {
@@ -407,13 +439,74 @@
 }
 
 /* Hide user info and action buttons on mobile */
+/* Medium screens - show only icons for action buttons */
+@media (max-width: 1200px) {
+  .nav-actions .btn span {
+    display: none; /* Hide button text, keep icons */
+  }
+  
+  .nav-actions .btn {
+    padding: 6px;
+    min-width: 32px;
+    justify-content: center;
+  }
+  
+  .navigation {
+    gap: 8px;
+    padding: 0 8px;
+  }
+  
+  .nav-links {
+    gap: 1px;
+  }
+  
+  .nav-link {
+    padding: 5px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+}
+
+/* Smaller screens - even more compact */
+@media (max-width: 1000px) {
+  .navigation {
+    gap: 6px;
+    padding: 0 6px;
+  }
+  
+  .nav-link {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+  
+  .nav-actions {
+    margin-right: 4px;
+  }
+  
+  /* Show hamburger menu on smaller screens */
+  .mobile-menu-toggle-nav {
+    display: flex;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-user {
-    display: none;
+    display: none; /* Hide user dropdown on mobile to prevent stacking */
   }
   
   .nav-actions {
     display: none; /* Hide action buttons on mobile */
+  }
+  
+  .mobile-menu-toggle-nav {
+    display: flex; /* Show hamburger menu on mobile */
+    position: fixed;
+    bottom: 70px; /* Just above the bottom navigation bar */
+    right: 15px;
+    z-index: 1000;
+    background: rgba(31, 41, 57, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 }
 

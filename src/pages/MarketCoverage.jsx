@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Upload, RefreshCw, ChevronRight, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X, BarChart3, Info } from 'lucide-react'
+import { MapPin, Upload, RefreshCw, ChevronRight, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X, BarChart3, Info, LogOut } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AddMarketModal from '../components/AddMarketModal'
@@ -28,6 +28,7 @@ function MarketCoverage({ session }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [customPriorities, setCustomPriorities] = useState(null)
   const [selectionMode, setSelectionMode] = useState('individual') // 'individual' or 'batch'
+  const [isHeaderCondensed, setIsHeaderCondensed] = useState(false)
   const [enhancedCoverage, setEnhancedCoverage] = useState(null)
   
   // Map states to regions for service prioritization
@@ -77,24 +78,36 @@ function MarketCoverage({ session }) {
       // Find the market that matches URL parameters
       let foundMarket = null
       
-      for (const state of Object.keys(markets)) {
-        const stateData = markets[state]
-        if (stateData && stateData.cities) {
-          foundMarket = stateData.cities.find(city => 
-            city.name === cityFromURL && state === stateFromURL
-          )
-          if (foundMarket) {
-            foundMarket.state = stateFromURL // Ensure state is set
+      // Search through the markets array (not object)
+      for (const stateGroup of markets) {
+        if (stateGroup.state === stateFromURL && stateGroup.cities) {
+          const city = stateGroup.cities.find(c => c.name === cityFromURL)
+          if (city) {
+            foundMarket = {
+              ...city,
+              state: stateFromURL,
+              location: stateGroup.location || 'Mountain' // Use location from state data
+            }
             break
           }
         }
       }
       
       if (foundMarket) {
+        console.log('Restored market from URL:', foundMarket)
         // Use setSelectedMarket directly here to avoid infinite loop since this is called from useEffect
         setSelectedMarket(foundMarket)
         // Expand the state in sidebar
         setExpandedStates(prev => ({ ...prev, [stateFromURL]: true }))
+      } else {
+        console.log('Market not found in URL restoration:', { 
+          cityFromURL, 
+          stateFromURL, 
+          availableMarkets: markets.map(s => ({ 
+            state: s.state, 
+            cities: s.cities?.map(c => c.name) 
+          }))
+        })
       }
     }
   }
@@ -131,6 +144,24 @@ function MarketCoverage({ session }) {
       window.removeEventListener('openImportLeadsModal', handleImportLeadsEvent)
     }
   }, [])
+
+  // Listen for scroll events to condense header
+  useEffect(() => {
+    const handleScroll = () => {
+      const mainContent = document.querySelector('.main-content')
+      if (mainContent) {
+        const scrollTop = mainContent.scrollTop
+        // Condense header after scrolling 100px
+        setIsHeaderCondensed(scrollTop > 100)
+      }
+    }
+
+    const mainContent = document.querySelector('.main-content')
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleScroll)
+      return () => mainContent.removeEventListener('scroll', handleScroll)
+    }
+  }, [selectedMarket])
 
   // Fetch service type counts when a market is selected
   useEffect(() => {
@@ -372,6 +403,15 @@ function MarketCoverage({ session }) {
     
     // The URL parameters will be preserved and restoreMarketFromURL will be called
     // when markets are reloaded, so the selection will be restored automatically
+  }
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      navigate('/auth')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   // Handle import completion - refresh markets while preserving selection
@@ -664,14 +704,6 @@ function MarketCoverage({ session }) {
 
   return (
     <div className="market-coverage-v2">
-      {/* Mobile Menu Toggle Button */}
-      <button 
-        className="mobile-menu-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
       {/* Sidebar Overlay for Mobile */}
       <div 
         className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
@@ -743,18 +775,29 @@ function MarketCoverage({ session }) {
               ))
             )}
           </div>
+          
+          {/* Mobile Logout Button */}
+          <div className="sidebar-footer">
+            <button className="logout-button" onClick={handleLogout}>
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
+            <div className="user-info">
+              <span className="user-email">{session?.user?.email}</span>
+            </div>
+          </div>
         </aside>
 
       {/* Main Content Area */}
       <div className="content">
         {/* Navigation - Inside content area */}
-        <Navigation session={session} />
+        <Navigation session={session} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
         {selectedMarket ? (
           <main className="main-content">
             
             {/* Market Header */}
-            <div className="market-header">
+            <div className={`market-header ${isHeaderCondensed ? 'condensed' : ''}`}>
               <div className="market-title">
                 <h2>{selectedMarket.name}, {selectedMarket.state}</h2>
                 <div className="market-badges">
@@ -773,7 +816,8 @@ function MarketCoverage({ session }) {
                   </span>
                 </div>
               </div>
-              <div className="market-stats">
+              {!isHeaderCondensed && (
+                <div className="market-stats">
                 <div className="stat">
                   <span className="stat-value">{selectedMarket.leads.toLocaleString()}</span>
                   <span className="stat-label">Total Leads</span>
@@ -802,7 +846,8 @@ function MarketCoverage({ session }) {
                     <span className="stat-label">Metro Pop</span>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Phase Tabs */}
@@ -812,7 +857,9 @@ function MarketCoverage({ session }) {
                 onClick={() => setActivePhase('google')}
               >
                 <MapPin size={16} />
-                Google Maps
+                <span className="tab-text-full">Google Maps</span>
+                <span className="tab-text-medium">Maps</span>
+                <span className="tab-text-short">Maps</span>
                 <span className="tab-count">{selectedMarket.leads.toLocaleString()}</span>
               </button>
               <button 
@@ -820,7 +867,9 @@ function MarketCoverage({ session }) {
                 onClick={() => setActivePhase('facebook')}
               >
                 <Target size={16} />
-                Facebook Ads
+                <span className="tab-text-full">Facebook Ads</span>
+                <span className="tab-text-medium">Facebook</span>
+                <span className="tab-text-short">FB</span>
                 <span className="tab-count">0</span>
               </button>
               <button 
@@ -828,7 +877,9 @@ function MarketCoverage({ session }) {
                 onClick={() => setActivePhase('instagram')}
               >
                 <TrendingUp size={16} />
-                Instagram
+                <span className="tab-text-full">Instagram</span>
+                <span className="tab-text-medium">Instagram</span>
+                <span className="tab-text-short">IG</span>
                 <span className="tab-count">0</span>
               </button>
               <button 
@@ -836,7 +887,9 @@ function MarketCoverage({ session }) {
                 onClick={() => setActivePhase('intelligence')}
               >
                 <BarChart3 size={16} />
-                Market Intelligence
+                <span className="tab-text-full">Market Intelligence</span>
+                <span className="tab-text-medium">Intelligence</span>
+                <span className="tab-text-short">Intel</span>
               </button>
             </div>
 
@@ -1128,6 +1181,7 @@ function MarketCoverage({ session }) {
           fetchServiceTypeCounts(selectedMarket.name, selectedMarket.state)
         }}
       />
+      
     </div>
   )
 }

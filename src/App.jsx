@@ -8,7 +8,8 @@ import LeadExport from './components/LeadExport'
 import LeadsTable from './components/LeadsTable'
 import DatabaseTest from './components/DatabaseTest'
 import Navigation from './components/Navigation'
-
+import { ToastContainer } from './components/Toast'
+import { useToast, setGlobalToastHandler } from './hooks/useToast'
 import Auth from './components/Auth'
 import AdminTools from './components/AdminTools'
 import './App.css'
@@ -16,8 +17,12 @@ import './App.css'
 function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { toasts, removeToast, toast } = useToast()
 
   useEffect(() => {
+    // Set global toast handler
+    setGlobalToastHandler(toast)
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -86,6 +91,7 @@ function App() {
           } />
         </Routes>
         <AdminTools />
+        <ToastContainer toasts={toasts} removeToast={removeToast} />
       </div>
     </Router>
   )

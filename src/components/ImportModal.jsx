@@ -3,11 +3,13 @@ import { X, Upload, Database, Calendar, AlertCircle, Loader } from 'lucide-react
 import ApifyService from '../services/apify'
 import { supabase } from '../lib/supabase'
 import { filterServiceBusinesses } from '../utils/leadFiltering'
+import { globalToast } from '../hooks/useToast'
 import './ImportModal.css'
 
 function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
   const [activeTab, setActiveTab] = useState('manual')
   const [selectedRuns, setSelectedRuns] = useState([])
+  const toast = globalToast
   const [apifyToken, setApifyToken] = useState(import.meta.env.VITE_APIFY_API_TOKEN || '')
   const [manualRunId, setManualRunId] = useState('')
   const [loading, setLoading] = useState(false)
@@ -15,6 +17,22 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
   const [apifyRuns, setApifyRuns] = useState([])
   const [error, setError] = useState('')
   const [serviceType, setServiceType] = useState('')
+  
+  // Progress tracking for manual imports
+  const [importProgress, setImportProgress] = useState({
+    current: 0,
+    total: 0,
+    phase: '', // 'fetching', 'filtering', 'checking', 'importing'
+    message: ''
+  })
+
+  // Import statistics
+  const [importStats, setImportStats] = useState({
+    totalFound: 0,
+    filtered: 0,
+    duplicates: 0,
+    imported: 0
+  })
 
   // Fetch runs from Apify
   const fetchApifyRuns = async () => {
@@ -43,7 +61,9 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
       setApifyRuns(transformedRuns)
     } catch (err) {
       console.error('Error fetching Apify runs:', err)
-      setError('Failed to fetch runs. Please check your API token.')
+      const errorMsg = 'Failed to fetch runs. Please check your API token.'
+      setError(errorMsg)
+      toast.error(errorMsg, 8000)
     } finally {
       setFetchingRuns(false)
     }
@@ -73,12 +93,16 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
 
   const handleImport = async () => {
     if (!selectedMarket) {
-      setError('Please select a market from the sidebar first')
+      const errorMsg = 'Please select a market from the sidebar first'
+      setError(errorMsg)
+      toast.error(errorMsg, 5000)
       return
     }
     
     if (!serviceType) {
-      setError('Please select a service type')
+      const errorMsg = 'Please select a service type'
+      setError(errorMsg)
+      toast.error(errorMsg, 5000)
       return
     }
 
@@ -112,7 +136,9 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
           runName: run.name
         }))
       } else {
-        setError('Please select runs to import or enter a Run ID')
+        const errorMsg = 'Please select runs to import or enter a Run ID'
+        setError(errorMsg)
+        toast.error(errorMsg, 5000)
         setLoading(false)
         return
       }
@@ -122,13 +148,51 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
       let totalSkipped = 0
       let totalExcluded = 0
       
+      // Reset stats
+      setImportStats({
+        totalFound: 0,
+        filtered: 0,
+        duplicates: 0,
+        imported: 0
+      })
+      
       for (const dataset of datasetsToImport) {
         try {
+          // Update progress - fetching phase
+          setImportProgress({
+            current: 0,
+            total: 0,
+            phase: 'fetching',
+            message: `Fetching dataset items from Apify...`
+          })
+          
           // Fetch dataset items
           const items = await apifyService.getDatasetItems(dataset.datasetId)
           
+          // Update progress - transforming phase
+          setImportProgress({
+            current: 0,
+            total: items.length,
+            phase: 'transforming',
+            message: `Processing ${items.length} items...`
+          })
+          
           // Transform to our lead format
           const leads = apifyService.transformToLeads(items, dataset.runName)
+          
+          // Update stats
+          setImportStats(prev => ({
+            ...prev,
+            totalFound: prev.totalFound + leads.length
+          }))
+          
+          // Update progress - filtering phase
+          setImportProgress({
+            current: 0,
+            total: leads.length,
+            phase: 'filtering',
+            message: `Filtering out non-service businesses...`
+          })
           
           // Apply filtering to exclude non-service businesses
           // Use the selected service type for proper filtering, fallback to runName if not selected
@@ -139,14 +203,32 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
           console.log('Excluded non-service businesses:', excludedBusinesses.length)
           if (excludedBusinesses.length > 0) {
             console.log('Excluded businesses:', excludedBusinesses)
+            // Show info toast about filtered businesses if significant number
+            if (excludedBusinesses.length >= 5) {
+              toast.info(`Filtered ${excludedBusinesses.length} non-service businesses during import`, 5000)
+            }
           }
           console.log('Total leads after filtering:', marketLeads.length, 'for market search in', selectedMarket.name, selectedMarket.state)
           
           // Track excluded count
           totalExcluded += excludedBusinesses.length
           
+          // Update stats
+          setImportStats(prev => ({
+            ...prev,
+            filtered: prev.filtered + excludedBusinesses.length
+          }))
+          
           // Insert leads into database
           if (marketLeads.length > 0) {
+            // Update progress - checking duplicates phase
+            setImportProgress({
+              current: 0,
+              total: marketLeads.length,
+              phase: 'checking',
+              message: `Checking for duplicates among ${marketLeads.length} leads...`
+            })
+            
             // Check for existing leads to avoid duplicates
             const phones = marketLeads.map(lead => lead.phone).filter(Boolean)
             
@@ -193,8 +275,24 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
               return true
             })
             
+            const duplicateCount = marketLeads.length - newLeads.length
+            
+            // Update stats for duplicates
+            setImportStats(prev => ({
+              ...prev,
+              duplicates: prev.duplicates + duplicateCount
+            }))
+            
             // Insert only new leads
             if (newLeads.length > 0) {
+              // Update progress - importing phase
+              setImportProgress({
+                current: 0,
+                total: newLeads.length,
+                phase: 'importing',
+                message: `Importing ${newLeads.length} new leads to database...`
+              })
+              
               // Try to get market_id if we have one
               let marketId = null
               if (selectedMarket.id && selectedMarket.id !== `temp-${selectedMarket.name}-${selectedMarket.state}`) {
@@ -234,6 +332,12 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
               
               totalImported += data.length
               
+              // Update stats
+              setImportStats(prev => ({
+                ...prev,
+                imported: prev.imported + data.length
+              }))
+              
               // Log skipped duplicates
               const skippedCount = marketLeads.length - newLeads.length
               if (skippedCount > 0) {
@@ -250,21 +354,34 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
         }
       }
       
-      // Success
+      // Success - Show detailed toast notification
       console.log(`Successfully imported ${totalImported} leads, skipped ${totalSkipped} duplicates`)
       
-      // Show success message with details
+      // Build detailed success message
       let successMsg = `Successfully imported ${totalImported} leads`
+      const details = []
+      
       if (totalSkipped > 0) {
-        successMsg += ` (${totalSkipped} duplicates skipped)`
+        details.push(`${totalSkipped} duplicates skipped`)
       }
       if (totalExcluded > 0) {
-        successMsg += ` (${totalExcluded} non-services excluded)`
+        details.push(`${totalExcluded} non-services filtered`)
       }
       
-      // You could show this in a toast notification or alert
-      // For now, we'll just log it
-      console.log(successMsg)
+      // Show toast with main message and details
+      if (totalImported > 0) {
+        if (details.length > 0) {
+          toast.success(`${successMsg} (${details.join(', ')})`, 15000) // Show for 15 seconds
+        } else {
+          toast.success(successMsg, 12000) // Show for 12 seconds
+        }
+      } else if (totalSkipped > 0 || totalExcluded > 0) {
+        // No new leads imported but some were processed
+        toast.warning(`No new leads imported. ${details.join(', ')}`, 12000) // Show for 12 seconds
+      } else {
+        // Nothing was imported at all
+        toast.info('No leads found to import', 10000) // Show for 10 seconds
+      }
       
       if (onImportComplete) {
         onImportComplete()
@@ -275,10 +392,20 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
       setManualRunId('')
       setApifyRuns([])
       
+      // Clear import stats
+      setImportStats({
+        totalFound: 0,
+        filtered: 0,
+        duplicates: 0,
+        imported: 0
+      })
+      
       onClose()
     } catch (err) {
       console.error('Error during import:', err)
-      setError('Failed to import leads. Please try again.')
+      const errorMessage = err.message || 'Failed to import leads. Please try again.'
+      setError(errorMessage)
+      toast.error(errorMessage, 10000) // Show error for 10 seconds
     } finally {
       setLoading(false)
     }
@@ -519,6 +646,81 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
             )}
           </button>
         </div>
+        
+        {/* Progress Indicator */}
+        {loading && importProgress.phase && (
+          <div className="import-progress" style={{
+            position: 'absolute',
+            bottom: '90px',
+            left: '24px',
+            right: '24px',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '8px',
+            padding: '16px',
+            fontSize: '14px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '8px'
+            }}>
+              <span style={{ color: '#3b82f6', fontWeight: '500' }}>
+                {importProgress.message}
+              </span>
+              {importProgress.total > 0 && (
+                <span style={{ color: '#6b7280', fontSize: '12px' }}>
+                  {importProgress.current} / {importProgress.total}
+                </span>
+              )}
+            </div>
+            
+            {/* Progress bar */}
+            {importProgress.total > 0 && (
+              <div style={{
+                width: '100%',
+                height: '4px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                borderRadius: '2px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${(importProgress.current / importProgress.total) * 100}%`,
+                  height: '100%',
+                  background: '#3b82f6',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            )}
+            
+            {/* Stats summary */}
+            <div style={{ 
+              marginTop: '12px', 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '12px',
+              fontSize: '12px'
+            }}>
+              <div>
+                <span style={{ color: '#6b7280' }}>Found: </span>
+                <span style={{ fontWeight: '500' }}>{importStats.totalFound}</span>
+              </div>
+              <div>
+                <span style={{ color: '#6b7280' }}>Filtered: </span>
+                <span style={{ fontWeight: '500', color: '#ef4444' }}>{importStats.filtered}</span>
+              </div>
+              <div>
+                <span style={{ color: '#6b7280' }}>Duplicates: </span>
+                <span style={{ fontWeight: '500', color: '#f59e0b' }}>{importStats.duplicates}</span>
+              </div>
+              <div>
+                <span style={{ color: '#6b7280' }}>Imported: </span>
+                <span style={{ fontWeight: '500', color: '#10b981' }}>{importStats.imported}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
