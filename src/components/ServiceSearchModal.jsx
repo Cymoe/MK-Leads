@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { X, Search, Loader, AlertCircle, CheckCircle, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Search, Loader, AlertCircle, CheckCircle, Clock, MapPin, ChevronDown, ChevronUp, Bot } from 'lucide-react'
 import ApifyService from '../services/apify'
 import { supabase } from '../lib/supabase'
 import { filterServiceBusinesses } from '../utils/leadFiltering'
+import * as OpenAIFilter from '../services/aiLeadFilterOpenAI'
+import * as SupabaseAIFilter from '../services/aiLeadFilterSupabase'
 import './ServiceSearchModal.css'
 
 function ServiceSearchModal({ 
@@ -17,7 +19,8 @@ function ServiceSearchModal({
     searchRadius: 50, // km
     includeClosedBusinesses: false,
     minRating: 0,
-    onlyVerified: false
+    onlyVerified: false,
+    useAiFiltering: true // Default to AI filtering enabled
   })
   
   const [activeSearches, setActiveSearches] = useState([])
@@ -172,11 +175,11 @@ function ServiceSearchModal({
         'residential painting'    // B2C specialists
       ],
       'Smart Home': [
-        'smart home',             // Broadest search
-        'home automation',        // Alternative term
-        'smart home installation', // Service-specific
-        'home technology contractors', // Professional category
-        'security system'         // Related service
+        'home automation company',     // Business identifier
+        'smart home installer',        // Service provider
+        'home automation systems',     // System-focused search
+        'smart lighting installation', // Specific service
+        'home theater installer'       // Related high-end service
       ],
       'Epoxy Flooring': [
         'epoxy flooring',         // Main service term
@@ -243,11 +246,11 @@ function ServiceSearchModal({
         'turf company'            // Business identifier
       ],
       'Smart Home Installation': [
-        'smart home',             // Broadest search
-        'home automation',        // Alternative term
-        'smart home installation', // Service-specific
-        'home technology contractors', // Professional category
-        'security system'         // Related service
+        'home automation installers',  // Most specific to service
+        'smart home integrators',      // Professional category
+        'Control4 dealer',             // Popular brand installers
+        'Savant dealer',               // Another major brand
+        'home theater installation'    // Often combined service
       ],
       'Outdoor Living Structures': [
         'pergola',                // Most common structure
@@ -463,13 +466,110 @@ function ServiceSearchModal({
       console.log('All unique cities found in search results:', uniqueCities)
       
       // Apply filtering to exclude non-service businesses
-      const { filteredLeads: marketLeads, excludedBusinesses } = filterServiceBusinesses(leads, serviceName)
+      let marketLeads = leads
+      let excludedBusinesses = []
       
-      console.log('Total leads before filtering:', leads.length)
-      console.log('Excluded non-service businesses:', excludedBusinesses.length)
-      if (excludedBusinesses.length > 0) {
-        console.log('Excluded businesses:', excludedBusinesses)
+      if (searchConfig.useAiFiltering && import.meta.env.VITE_OPENAI_API_KEY) {
+        // Use AI filtering
+        console.log('Using AI filtering for', leads.length, 'leads')
+        
+        // Update search status to show AI filtering
+        setActiveSearches(prev => prev.map(s => 
+          s.id === searchId ? { 
+            ...s, 
+            status: 'importing',
+            details: `AI filtering ${leads.length} businesses...`
+          } : s
+        ))
+        
+        const includedLeads = []
+        const aiExcludedBusinesses = []
+        
+        // Process in batches
+        const batchSize = 10
+        for (let i = 0; i < leads.length; i += batchSize) {
+          const batch = leads.slice(i, i + batchSize)
+          
+          // Update progress
+          setActiveSearches(prev => prev.map(s => 
+            s.id === searchId ? { 
+              ...s, 
+              details: `AI filtering: ${Math.min(i + batchSize, leads.length)}/${leads.length} businesses...`
+            } : s
+          ))
+          
+          try {
+            // Transform leads to AI format
+            const businesses = batch.map(lead => ({
+              name: lead.name,
+              category: lead.category || '',
+              address: lead.address || ''
+            }))
+            
+            // Classify batch using Supabase Edge Function (avoids CORS issues)
+            const results = await SupabaseAIFilter.classifyBusinessBatch(
+              businesses,
+              serviceName
+            )
+            
+            // Process results
+            results.forEach((result, index) => {
+              const originalLead = batch[index]
+              if (result.isServiceProvider) {
+                includedLeads.push(originalLead)
+              } else {
+                aiExcludedBusinesses.push({
+                  ...originalLead,
+                  aiReason: result.reason,
+                  confidence: result.confidence
+                })
+              }
+            })
+          } catch (aiError) {
+            console.error('AI filtering error, falling back to rule-based:', aiError)
+            // Fall back to rule-based filtering for this batch
+            const { filteredLeads, excludedBusinesses: ruleExcluded } = filterServiceBusinesses(batch, serviceName)
+            includedLeads.push(...filteredLeads)
+            aiExcludedBusinesses.push(...ruleExcluded)
+          }
+        }
+        
+        marketLeads = includedLeads
+        excludedBusinesses = aiExcludedBusinesses
+        
+        console.log('AI filtering complete:', {
+          total: leads.length,
+          included: marketLeads.length,
+          excluded: excludedBusinesses.length
+        })
+        
+        // Log AI filtering metrics
+        if (supabase && user?.id) {
+          const startTime = Date.now()
+          try {
+            await supabase
+              .from('ai_filtering_logs')
+              .insert({
+                user_id: user.id,
+                service_type: serviceName,
+                market_name: `${selectedMarket.name}, ${selectedMarket.state}`,
+                total_processed: leads.length,
+                total_filtered: excludedBusinesses.length,
+                model_used: import.meta.env.VITE_USE_GPT4_FILTERING === 'true' ? 'gpt-4' : 'gpt-3.5-turbo',
+                processing_time_ms: Date.now() - startTime
+              })
+          } catch (logError) {
+            console.error('Error logging AI metrics:', logError)
+          }
+        }
+      } else {
+        // Use rule-based filtering
+        const filterResult = filterServiceBusinesses(leads, serviceName)
+        marketLeads = filterResult.filteredLeads
+        excludedBusinesses = filterResult.excludedBusinesses
+        console.log('Rule-based filtering:', leads.length, '→', marketLeads.length)
       }
+      
       console.log('Total leads after filtering:', marketLeads.length, 'for market search in', selectedMarket.name, selectedMarket.state)
       
       // Check for duplicates and insert
@@ -478,15 +578,16 @@ function ServiceSearchModal({
       let excludedCount = excludedBusinesses.length
       
       if (marketLeads.length > 0) {
-        // Check for existing leads by phone and company name
+        // Check for existing leads by phone, company name, and Google Maps URL
         const phones = marketLeads.map(lead => lead.phone).filter(Boolean)
         const companyNames = marketLeads.map(lead => lead.name).filter(Boolean)
+        const googleMapsUrls = marketLeads.map(lead => lead.googleMapsUrl).filter(Boolean)
         
         let existingLeads = []
         if (phones.length > 0) {
           const { data: phoneMatches } = await supabase
             .from('leads')
-            .select('phone, company_name')
+            .select('phone, company_name, google_maps_url')
             .in('phone', phones)
           
           if (phoneMatches) existingLeads = [...existingLeads, ...phoneMatches]
@@ -495,15 +596,25 @@ function ServiceSearchModal({
         if (companyNames.length > 0) {
           const { data: nameMatches } = await supabase
             .from('leads')
-            .select('phone, company_name')
+            .select('phone, company_name, google_maps_url')
             .in('company_name', companyNames)
           
           if (nameMatches) existingLeads = [...existingLeads, ...nameMatches]
         }
         
+        if (googleMapsUrls.length > 0) {
+          const { data: urlMatches } = await supabase
+            .from('leads')
+            .select('phone, company_name, google_maps_url')
+            .in('google_maps_url', googleMapsUrls)
+          
+          if (urlMatches) existingLeads = [...existingLeads, ...urlMatches]
+        }
+        
         // Create sets for quick lookup
         const existingPhones = new Set(existingLeads.map(l => l.phone).filter(Boolean))
         const existingNames = new Set(existingLeads.map(l => l.company_name).filter(Boolean))
+        const existingUrls = new Set(existingLeads.map(l => l.google_maps_url).filter(Boolean))
         
         // Filter out duplicates
         const newLeads = marketLeads.filter(lead => {
@@ -695,6 +806,48 @@ function ServiceSearchModal({
                   className="form-input"
                 />
               </div>
+              
+              {/* AI Filtering Toggle */}
+              <div className="config-item">
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={searchConfig.useAiFiltering}
+                    onChange={(e) => setSearchConfig({
+                      ...searchConfig,
+                      useAiFiltering: e.target.checked
+                    })}
+                    style={{ marginRight: '8px' }}
+                  />
+                  <Bot size={18} style={{ marginRight: '6px', color: '#3b82f6' }} />
+                  <span style={{ fontWeight: '500' }}>Use AI Filtering</span>
+                  <span style={{ 
+                    marginLeft: '8px', 
+                    fontSize: '12px', 
+                    color: '#10b981',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontWeight: '500'
+                  }}>
+                    Recommended
+                  </span>
+                </label>
+                <small style={{ display: 'block', marginTop: '4px', color: '#6b7280' }}>
+                  {searchConfig.useAiFiltering ? (
+                    <>
+                      AI will filter non-service businesses • ~$0.17 per 1,000 leads
+                      {!import.meta.env.VITE_OPENAI_API_KEY && (
+                        <span style={{ display: 'block', color: '#ef4444', marginTop: '4px' }}>
+                          ⚠️ OpenAI API key not found - will use rule-based filtering
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    'Using rule-based filtering (may include some non-service businesses)'
+                  )}
+                </small>
+              </div>
             </div>
             
             {/* Query Details Section */}
@@ -794,6 +947,12 @@ function ServiceSearchModal({
                             Running...
                           </>
                         )}
+                        {search.status === 'importing' && (
+                          <>
+                            <Loader size={14} className="spinner" />
+                            Importing...
+                          </>
+                        )}
                         {search.status === 'failed' && (
                           <>
                             <AlertCircle size={14} />
@@ -805,6 +964,16 @@ function ServiceSearchModal({
                     {search.progress > 0 && (
                       <div className="search-progress">
                         <span>{search.progress} businesses found</span>
+                      </div>
+                    )}
+                    {search.details && (
+                      <div className="search-details" style={{ 
+                        fontSize: '13px', 
+                        color: '#3b82f6',
+                        marginTop: '4px'
+                      }}>
+                        <Bot size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                        {search.details}
                       </div>
                     )}
                     {search.error && (
@@ -829,7 +998,10 @@ function ServiceSearchModal({
                         <span>{search.skippedCount} duplicates skipped</span>
                       )}
                       {search.excludedCount > 0 && (
-                        <span>{search.excludedCount} non-services excluded</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Bot size={12} style={{ color: '#3b82f6' }} />
+                          {search.excludedCount} non-services excluded
+                        </span>
                       )}
                       <span>{search.totalFound} total found</span>
                     </div>

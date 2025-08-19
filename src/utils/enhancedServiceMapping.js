@@ -1,11 +1,11 @@
 // Enhanced service mapping with expanded mappings and Other Services category
 // Based on analysis of CSV imports from Greenwich, Newark, and Naples
 
-// Complete list of 34 core UI services
+// Complete list of 33 core UI services
 export const coreUIServices = [
   'Deck Builders', 'Concrete Contractors', 'Window & Door', 'Roofing Contractors',
   'Tree Services', 'Solar Installers', 'Fence Contractors', 'Pool Builders',
-  'Turf Installers', 'Kitchen Remodeling', 'Bathroom Remodeling', 'Whole Home Remodel',
+  'Kitchen Remodeling', 'Bathroom Remodeling', 'Whole Home Remodel',
   'Home Addition', 'Exterior Contractors', 'Hardscape Contractors', 'Landscaping Design',
   'Outdoor Kitchen', 'Painting Companies', 'Smart Home', 'Epoxy Flooring',
   'Garage Door Services', 'Cabinet Makers', 'Tile & Stone', 'Paving & Asphalt',
@@ -55,10 +55,10 @@ export const enhancedServiceMapping = {
     'Pool repair', 'Swimming pool repair service', 'Pool maintenance',
     'Pool builder', 'Pool construction', 'Hot tub installation'
   ],
-  'Turf Installers': [
+  'Artificial Turf Installation': [
     'Landscaper', 'Lawn care service', 'Artificial turf installation',
     'Turf supplier', 'Turf installation', 'Synthetic grass installation',
-    'Artificial grass installer', 'Turf replacement'
+    'Artificial grass installer', 'Turf replacement', 'Turf Installers'
   ],
   'Kitchen Remodeling': [
     'Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor',

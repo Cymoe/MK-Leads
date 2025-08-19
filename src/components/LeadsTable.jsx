@@ -322,7 +322,8 @@ function LeadsTable() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(lead =>
-        lead.business_name?.toLowerCase().includes(term) ||
+        (lead.name?.toLowerCase().includes(term) || 
+         lead.company_name?.toLowerCase().includes(term)) ||
         lead.city?.toLowerCase().includes(term) ||
         lead.state?.toLowerCase().includes(term) ||
         lead.phone?.includes(term) ||
@@ -612,7 +613,7 @@ function LeadsTable() {
                 <td className="business-cell">
                   <div className="business-info">
                     <span className="business-name">
-                      {lead.company_name || 'Unnamed Business'}
+                      {lead.name || lead.company_name || 'Unnamed Business'}
                     </span>
                     {lead.market_id && (
                       <span className="market-id">{lead.market_id}</span>
@@ -766,7 +767,7 @@ function LeadsTable() {
         <div className="modal-overlay" onClick={() => setSelectedLead(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{selectedLead.business_name || 'Lead Details'}</h2>
+              <h2>{selectedLead.name || selectedLead.company_name || 'Lead Details'}</h2>
               <button 
                 className="btn-icon"
                 onClick={() => setSelectedLead(null)}
@@ -779,7 +780,7 @@ function LeadsTable() {
               <div className="detail-grid">
                 <div className="detail-item">
                   <label>BUSINESS NAME</label>
-                  <span>{selectedLead.business_name || 'N/A'}</span>
+                  <span>{selectedLead.name || selectedLead.company_name || 'N/A'}</span>
                 </div>
                 
                 <div className="detail-item">

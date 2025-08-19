@@ -12,6 +12,9 @@ import { ToastContainer } from './components/Toast'
 import { useToast, setGlobalToastHandler } from './hooks/useToast'
 import Auth from './components/Auth'
 import AdminTools from './components/AdminTools'
+import TestAiFiltering from './pages/TestAiFiltering'
+import DataCleanup from './pages/DataCleanup'
+import AIMetrics from './pages/AIMetrics'
 import './App.css'
 
 function App() {
@@ -89,6 +92,19 @@ function App() {
               <DatabaseTest />
             </>
           } />
+          <Route path="/test-ai" element={
+            <>
+              <Navigation session={session} />
+              <TestAiFiltering />
+            </>
+          } />
+          <Route path="/cleanup" element={
+            <>
+              <Navigation session={session} />
+              <DataCleanup />
+            </>
+          } />
+          <Route path="/ai-metrics" element={<AIMetrics session={session} />} />
         </Routes>
         <AdminTools />
         <ToastContainer toasts={toasts} removeToast={removeToast} />

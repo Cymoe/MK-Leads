@@ -305,7 +305,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
                  'Kitchen Remodeling', 'Bathroom Remodeling', 'Water Features Installation',
                  'Outdoor Kitchen Installation'],
         low: ['Tree Services', 'Deck Builders', 'Whole Home Remodel', 'Home Addition',
-              'Exterior Contractors', 'Hardscape Contractors', 'Turf Installers']
+              'Exterior Contractors', 'Hardscape Contractors']
       },
       northeast: {
         high: ['Kitchen Remodeling', 'Bathroom Remodeling', 'Window & Door', 'Painting Companies',
@@ -328,7 +328,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
                'Tree Services', 'EV Charging Installation'],
         medium: ['Kitchen Remodeling', 'Whole Home Remodel', 'Fence Contractors', 'Concrete Contractors',
                  'Custom Lighting Design', 'Painting Companies'],
-        low: ['Pool Builders', 'Solar Installers', 'Turf Installers', 'Artificial Turf Installation',
+        low: ['Pool Builders', 'Solar Installers', 'Artificial Turf Installation',
               'Outdoor Kitchen', 'Water Features Installation', 'Palapa/Tropical Structures']
       },
       mountain: {

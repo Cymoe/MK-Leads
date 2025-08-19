@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu, X } from 'lucide-react'
+import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import CryptoJS from 'crypto-js'
 import './Navigation.css'
 
-function Navigation({ session, sidebarOpen, setSidebarOpen }) {
+function Navigation({ session }) {
   const location = useLocation()
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark'
@@ -219,15 +219,7 @@ function Navigation({ session, sidebarOpen, setSidebarOpen }) {
         </div>
       )}
       
-      {/* Mobile Menu Toggle - Top right corner */}
-      {session && (
-        <button 
-          className="mobile-menu-toggle-nav"
-          onClick={() => setSidebarOpen && setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      )}
+
     </nav>
   )
 }

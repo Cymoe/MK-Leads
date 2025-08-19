@@ -374,6 +374,8 @@ function MarketCoverage({ session }) {
         .eq('city', city)
         .eq('state', state)
         .not('service_type', 'is', null)
+        .limit(10000) // Ensure we get all records
+        .order('created_at', { ascending: false })
       
       if (error) throw error
       
@@ -383,6 +385,10 @@ function MarketCoverage({ session }) {
         const serviceType = lead.service_type
         counts[serviceType] = (counts[serviceType] || 0) + 1
       })
+      
+      // Debug: Check for Artificial Turf Installation specifically
+      console.log('Total leads fetched:', data?.length)
+      console.log('Artificial Turf Installation count:', counts['Artificial Turf Installation'])
       
       setServiceTypeCounts(counts)
       console.log('Service type counts for', city, state, ':', counts)
@@ -430,7 +436,6 @@ function MarketCoverage({ session }) {
     { name: 'Solar Installers', category: 'established' },
     { name: 'Fence Contractors', category: 'established' },
     { name: 'Pool Builders', category: 'established' },
-    { name: 'Turf Installers', category: 'established' },
     { name: 'Kitchen Remodeling', category: 'established' },
     { name: 'Bathroom Remodeling', category: 'established' },
     { name: 'Whole Home Remodel', category: 'established' },
@@ -622,6 +627,13 @@ function MarketCoverage({ session }) {
     // First check if the service name itself exists in the database (UI display names)
     let totalCount = serviceTypeCounts[serviceName] || 0
     
+    // Debug logging for Turf Installers - commented out to reduce console spam
+    // if (serviceName === 'Turf Installers') {
+    //   console.log('Getting count for Turf Installers:')
+    //   console.log('- Direct count:', totalCount)
+    //   console.log('- serviceTypeCounts:', serviceTypeCounts)
+    // }
+    
     // Map UI service names to actual service types in the database
     const serviceMapping = {
       'Deck Builders': ['Deck builder', 'Deck contractor', 'Deck construction'],
@@ -632,7 +644,6 @@ function MarketCoverage({ session }) {
       'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer'],
       'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company'],
       'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair'],
-      'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation'],
       'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor'],
       'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor'],
       'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General'],
@@ -649,7 +660,8 @@ function MarketCoverage({ session }) {
       'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer'],
       'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving'],
       'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company'],
-      'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer']
+      'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer'],
+      'Artificial Turf Installation': ['Turf supplier', 'Turf installation', 'Synthetic grass installation', 'Artificial grass installer']
     }
     
     // Get the mapped service types
@@ -659,7 +671,16 @@ function MarketCoverage({ session }) {
     mappedTypes.forEach(type => {
       const typeCount = serviceTypeCounts[type] || 0
       totalCount += typeCount
+      
+      // Debug logging for Turf Installers
+      if (serviceName === 'Turf Installers' && typeCount > 0) {
+        console.log(`- Found ${typeCount} for "${type}"`)
+      }
     })
+    
+    if (serviceName === 'Turf Installers') {
+      console.log('- Total count for Turf Installers:', totalCount)
+    }
     
     return totalCount
   }
@@ -791,7 +812,7 @@ function MarketCoverage({ session }) {
       {/* Main Content Area */}
       <div className="content">
         {/* Navigation - Inside content area */}
-        <Navigation session={session} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Navigation session={session} />
         
         {selectedMarket ? (
           <main className="main-content">

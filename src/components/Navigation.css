@@ -29,8 +29,8 @@
   gap: 12px;
   padding: 0 12px;
   height: 56px;
-  background-color: var(--bg-medium);
-  border-bottom: 1px solid var(--bg-light);
+  background-color: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-sidebar);
   min-width: 0; /* Prevent overflow */
   overflow: hidden; /* Prevent content overflow */
   position: relative; /* For absolute positioning of hamburger menu */
@@ -180,31 +180,7 @@
   }
 }
 
-/* Mobile Menu Toggle in Navigation - Between actions and user */
-.mobile-menu-toggle-nav {
-  display: none; /* Hidden by default */
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  z-index: 15; /* Above everything else in navigation */
-  background: rgba(55, 65, 81, 0.1); /* Slight background to make it more visible */
-}
 
-.mobile-menu-toggle-nav:hover {
-  background: rgba(55, 65, 81, 0.3);
-  color: var(--text-primary);
-}
 
 /* Action Buttons - Styled like navigation items */
 .nav-actions {
@@ -343,7 +319,7 @@
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  z-index: 1000;
+  z-index: 9999;
   overflow: hidden;
 }
 
@@ -483,30 +459,20 @@
     margin-right: 4px;
   }
   
-  /* Show hamburger menu on smaller screens */
-  .mobile-menu-toggle-nav {
-    display: flex;
-  }
+
 }
 
 @media (max-width: 768px) {
   .nav-user {
-    display: none; /* Hide user dropdown on mobile to prevent stacking */
+    display: block; /* Keep user dropdown visible on mobile */
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 1001; /* Above bottom navigation */
   }
   
   .nav-actions {
     display: none; /* Hide action buttons on mobile */
-  }
-  
-  .mobile-menu-toggle-nav {
-    display: flex; /* Show hamburger menu on mobile */
-    position: fixed;
-    bottom: 70px; /* Just above the bottom navigation bar */
-    right: 15px;
-    z-index: 1000;
-    background: rgba(31, 41, 57, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 }
 

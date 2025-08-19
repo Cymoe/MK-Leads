@@ -11,6 +11,8 @@ export const universalExclusions = [
   'equipment rental', 'tool rental', 'sanitary supply',
   'bob mills furniture', 'furniture store', 'furniture mart',
   'habitat for humanity', 'habitat restore',
+  '& supply', 'and supply', '& supplies', 'and supplies', // Catch businesses ending with supply
+  'supply co', 'supplies co', 'supply center', 'supplies center',
   
   // Manufacturing indicators
   'manufacturer', 'manufacturing', 'factory', 'production facility',
@@ -22,6 +24,13 @@ export const universalExclusions = [
   'restaurant', 'cafe', 'coffee', 'bakery', 'biscuit', 'brunch',
   'brewery', 'brewing', 'craft kitchen', 'natural kitchen',
   'catering', 'food', 'dining', 'bistro', 'grill', 'tavern',
+  'long john silver', 'casa dela poblanita', 'fast food',
+  
+  // Grocery stores and supermarkets
+  'grocery', 'groceries', 'supermarket', 'market street',
+  'united supermarket', 'whole foods', 'trader joe', 'kroger',
+  'safeway', 'albertsons', 'food mart', 'food market',
+  'natural grocers', 'fresh market', 'food store',
   
   // Other non-service indicators
   'supplier', 'vendor', 'appliances llc', 'appliance store',
@@ -32,6 +41,19 @@ export const universalExclusions = [
   'design showroom', 'design gallery', 'decor store', 'decorating store',
   'home decor', 'home accessories', 'home furnishings',
   'gift shop', 'gift store', 'souvenir', 'novelty shop',
+  'carpet world', 'flooring world', 'tile world', // Retail world stores
+  'wilbert vault', 'burial vault', 'funeral', 'cemetery', 'mortuary',
+  'cremation', 'memorial', 'monument',
+  
+  // Additional retail stores
+  'dollar general', 'dollar store', 'discount store', 'bargain store',
+  'petsmart', 'petco', 'pet supplies', 'pet store', 'pet shop',
+  'ollie\'s', 'ollies', 'bargain outlet', 'discount outlet',
+  'flea market', 'swap meet', 'antique mall', 'antique store',
+  'smoke shop', 'vape shop', 'tobacco shop', 'cigar shop',
+  'halloween store', 'spirit halloween', 'costume shop',
+  'flower shop', 'florist', 'flowers & gifts', 'floral shop',
+  'acai bar', 'açaí bar', 'juice bar', 'smoothie shop',
   
   // Tool and equipment stores/rentals
   'northern tool', 'harbor freight', 'grainger', 'fastenal',
@@ -42,6 +64,9 @@ export const universalExclusions = [
   'equipment company', 'tools & equipment', 'industrial supply',
   'industrial tool', 'contractor supply', 'builder supply',
   'northern tool + equipment', 'northern tool+equipment',
+  'outdoor supply', 'landscape supply', 'landscaping supplies',
+  'turf supply', 'pest supply', 'grass warehouse', 'grass store',
+  'sutherland', 'homebase', 'lumber yard', 'building supply',
   
   // Property management companies (not service providers)
   'property management', 'property manager', 'management company',
@@ -80,10 +105,19 @@ export const universalExclusions = [
   'fuel station', 'petrol station', 'filling station', 'service station store',
   'kwik stop', 'quick stop', 'ez mart', 'speedway', 'casey\'s general',
   'stripes', 'allsup\'s', 'ampm', 'arco', 'bp station', 'citgo',
+  'flying j', 'pilot', 'loves travel', 'love\'s travel', 'ta travel',
+  'travel center', 'truck stop',
   'conoco', 'phillips 66', 'sinclair', 'sunoco', 'texaco', 'marathon',
   
   // Museums and entertainment venues
   'museum', 'hall of fame', 'gallery', 'theater', 'theatre',
+  'battle zone', 'battlezone', 'entertainment center', 'amusement',
+  
+  // Sports facilities and venues
+  'golf club', 'country club', 'athletic field', 'track field',
+  'sports field', 'athletic center', 'recreation center',
+  'rebosoccer', 'soccer shop', 'dirty turf', 'trails',
+  'athletic complex', 'sports venue', 'stadium',
   
   // Shopping centers, malls, and retail complexes
   'shopping center', 'shopping centre', 'shopping mall', 'outlet mall',
@@ -110,6 +144,8 @@ export const universalExclusions = [
   'law firm', 'attorney', 'lawyer', 'legal services', 'law office',
   'legal counsel', 'paralegal', 'litigation', 'law group',
   'dale williams', // Specific exclusion - receivership service
+  'consulting', 'consultant', 'advisory', 'professional services',
+  'business services', 'management services', 'administrative services',
   
   // Insurance and real estate offices
   'insurance agency', 'insurance company', 'state farm', 'allstate',
@@ -121,6 +157,7 @@ export const universalExclusions = [
   // Medical and healthcare facilities
   'hospital', 'clinic', 'medical center', 'urgent care', 'emergency room',
   'doctor office', 'dentist office', 'veterinary', 'pharmacy',
+  'm.d.', 'md', 'medical group', 'physician', 'healthcare', 'health care',
   
   // Educational institutions
   'school', 'university', 'college', 'academy', 'institute',
@@ -134,14 +171,48 @@ export const universalExclusions = [
   'aerospace', 'aviation', 'aircraft', 'airplane', 'airport',
   'hangar', 'runway', 'terminal', 'airline', 'airways',
   'jet', 'helicopter', 'flight', 'pilot', 'avionics',
-  'propeller', 'fuselage', 'cockpit', 'air force', 'airfield'
+  'propeller', 'fuselage', 'cockpit', 'air force', 'airfield',
+  
+  // Specific company exclusions for improved filtering
+  'azbattlezone', 'papago golf', 'raven golf', 'ewing outdoor',
+  'synthetic grass warehouse', 'synthetic grass store',
+  
+  // Senior living and care facilities
+  'senior living', 'assisted living', 'nursing home', 'retirement home',
+  'senior center', 'elder care', 'memory care', 'senior community',
+  'retirement community', 'care facility', 'care center',
+  
+  // Trade associations and organizations
+  'association', 'builders association', 'trade association',
+  'chamber of commerce', 'organization', 'society', 'foundation',
+  'institute', 'federation', 'union', 'guild',
+  
+  // Government and public services
+  'court of appeals', 'police department', 'fire department',
+  'city hall', 'courthouse', 'government building', 'municipal building',
+  'federal building', 'state building', 'county building',
+  'department of', 'bureau of', 'office of',
+  
+  // Apartments and residential complexes
+  'apartments', 'apartment complex', 'apartment homes',
+  'apartment community', 'residential complex', 'housing complex',
+  'condominiums', 'condos', 'townhomes', 'townhouses',
+  
+  // Auto performance and motorsports
+  'power and performance', 'auto performance', 'performance shop',
+  'race shop', 'speed shop', 'motorsports', 'racing',
+  
+  // Carpet and flooring stores (not installers)
+  'carpet connection', 'carpet store', 'flooring store',
+  'carpet outlet', 'carpet mart', 'carpet depot'
 ];
 
 // Service-specific exclusions
 export const serviceSpecificExclusions = {
   'Painting Companies': [
     'art gallery', 'art studio', 'art center', 'art experience',
-    'art museum', 'art shop', 'art store', 'art bar',
+    'art museum', 'art shop', 'art store', 'art bar', 'art house',
+    'art shack', 'art by heart', 'elephant art studio', 'art events',
     'paint store', 'paint shop', 'sherwin williams', 'benjamin moore',
     'kelly-moore paints', 'kelly moore', 'behr paint', 'ppg paints', 'ace paint',
     'h i s paint', 'his paint', 'h.i.s. paint', 'h.i.s paint',
@@ -155,12 +226,14 @@ export const serviceSpecificExclusions = {
     'wine & design', 'wine and design', 'paint & sip', 'paint and sip',
     'paintn & sipn', 'booze n brush', 'spin art', 'splatter studio',
     'paint parties', 'paint party', 'painting parties', 'painting party',
+    'van go go', 'paint party', 'go go paint', 'paint and sip',
     'art lessons', 'art class', 'paint your pot', 'glaze studio',
     'klaystation', 'arts center', 'arts commission', 'art circle',
     'artworks', 'arthouse', 'artpost', 'artsource', 'art & framing',
     'wedding painter', 'live painter', 'nail studio', 'paint and body',
     'auto body', 'body shop', 'flick of the wrist', 'the centerpiece',
-    'anchorlight', 'casas studios', 'village art'
+    'anchorlight', 'casas studios', 'village art', 'maaco auto',
+    'auto painting', 'automotive painting', 'car painting'
   ],
   
   'Landscaping Design': [
@@ -212,7 +285,35 @@ export const serviceSpecificExclusions = {
     'biltmore hills park', 'orange county sportsplex',
     // Resorts and rentals
     'resort & spa', 'vacations resort', 'swimply', 'pool rental',
-    'event space', 'bluegreen vacations'
+    'event space', 'bluegreen vacations',
+    // Government and public services
+    'court of appeals', 'police department', 'fire department',
+    'city hall', 'courthouse', 'government', 'municipal',
+    // Medical and healthcare
+    'aerocare', 'medical', 'healthcare', 'therapy',
+    // Real estate and property management
+    'real estate', 'property management', 'apartments', 'apartment complex',
+    'apartment homes', 'realty', 'properties',
+    // Entertainment venues
+    'billiards', 'pool hall', 'pool palace', 'gaming',
+    // Hotels and lodging
+    'inn', 'hotel', 'motel', 'suites', 'lodge',
+    'courtyard', 'marriott', 'sheraton', 'hilton',
+    // TV/Media
+    'news', 'tv station', 'radio station', 'media',
+    // Retail stores
+    'dollar tree', 'dollar general', 'family dollar',
+    'gebo\'s', 'gebos', 'braum', 'ice cream',
+    'cowboy boots', 'boot store',
+    // Transportation
+    'rv ranch', 'rv park', 'rv resort',
+    // Title companies
+    'title company', 'land title',
+    // Other services
+    'plumbing', 'roofing', 'construction', 'handyman',
+    'power washing', 'warehousing', 'logistics',
+    // Camps and ranches
+    'boys ranch', 'girls ranch', 'summer camp'
   ],
   
   'Roofing Contractors': [
@@ -338,14 +439,19 @@ export const serviceSpecificExclusions = {
     'higi', 'passport photos', 'phone repair', 'lash studio',
     'soccer shop', 'rentals', 'coaching', 'training',
     'vasa fitness', 'fitness',
-    // Nurseries (not installers)
+    // Nurseries and supply stores (not installers)
     'nursery', 'nurseries', 'landscape centers',
+    'outdoor supply', 'landscaping supplies', 'pest supplies',
+    'grass warehouse', 'grass store', 'paver store',
     // Non-turf companies
     'stone company', 'fire bowls', 'stabilizer solutions',
     // Parks and sports facilities
     'park', 'public park', 'sports complex field', 'soccer field',
     'sports complex', 'sports centre', 'sports center',
-    'golf course', 'country club', 'basin',
+    'golf course', 'country club', 'basin', 'golf club',
+    'athletic field', 'track athletics', 'gcu track', 'track field',
+    'battle zone', 'battlezone', 'rebosoccer', 'soccer shop',
+    'trail', 'trails', 'dirty turf', 'turf paradise',
     // Schools and educational facilities
     'high school', 'track and field', 'school field',
     // Government facilities
@@ -403,11 +509,26 @@ export function isExcludedBusiness(businessName, serviceType) {
       /^creating\s+.*\s+art/i,              // "Creating My Art, LLC"
       /museum\s+of\s+art/i,                 // "North Carolina Museum of Art"
       /office\s+of\s+.*\s+arts?/i,          // "The Office of Raleigh Arts"
-      /\bart\s+(gallery|studio|center|museum|shop|store|bar|experience|workshop|camp|class|lessons|circle|commission)\b/i,
+      /\bart\s+(gallery|studio|center|museum|shop|store|bar|experience|workshop|camp|class|lessons|circle|commission|house|shack)\b/i,
       /\b(gallery|studio|museum)\s+.*\bart\b/i,
       
       // Personal artist names (Name + Art pattern)
       /^[A-Z][a-z]+\s+[A-Z][a-z]+\s+Art$/i,  // "Taylor White Art", "Matt Tomko Art"
+      
+      // Additional art patterns
+      /arts\s+in\s+the\s+/i,                // "Arts in the Sunset"
+      /art\s+trek/i,                        // "Art Trek Studio"
+      /\bstudio\s*$/i,                      // Businesses ending with just "Studio"
+      /horsefeathers/i,                     // "Horsefeathers Studio" - art studio
+      
+      // McKinney-specific art business patterns that slipped through
+      /mckinney\s+art\s+house/i,            // "McKinney Art House"
+      /art\s+shack/i,                       // "Kelly's Art Shack"
+      /van\s+go\s+go/i,                     // "Van Go Go Paint Party"
+      /paint\s+party/i,                     // Paint party entertainment
+      /art\s+by\s+heart/i,                  // "Geeti's Art By Heart"
+      /elephant\s+art/i,                    // "Petit Elephant Art Studio"
+      /go\s+go\s+paint/i,                   // Paint party variations
       
       // Other art-related patterns already in exclusions will still be caught
     ];

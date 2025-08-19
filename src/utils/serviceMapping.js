@@ -8,7 +8,6 @@ export const serviceTypeMapping = {
   'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer'],
   'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company'],
   'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair'],
-  'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation'],
   'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor'],
   'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor'],
   'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General'],

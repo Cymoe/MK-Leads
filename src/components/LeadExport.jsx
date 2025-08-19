@@ -25,12 +25,19 @@ function LeadExport() {
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [exportStatus, setExportStatus] = useState('')
+  const [exportFormat, setExportFormat] = useState('single') // 'single', 'by-market', 'by-service'
 
-  // Load leads and filter options on component mount
+  // Load leads on component mount
   useEffect(() => {
     loadLeads()
-    loadFilterOptions()
   }, [])
+
+  // Load filter options after leads are loaded
+  useEffect(() => {
+    if (leads.length > 0) {
+      loadFilterOptions()
+    }
+  }, [leads])
 
   // Apply filters when filters change
   useEffect(() => {
@@ -40,18 +47,50 @@ function LeadExport() {
   const loadLeads = async () => {
     setLoading(true)
     try {
-      const { data, error } = await supabase
+      // First, get the total count
+      const { count, error: countError } = await supabase
         .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .select('*', { count: 'exact', head: true })
 
-      if (error) {
-        console.error('Error loading leads:', error)
-        setExportStatus('Error loading leads: ' + error.message)
-      } else {
-        setLeads(data || [])
-        setFilteredLeads(data || [])
+      if (countError) {
+        console.error('Error getting count:', countError)
+        setExportStatus('Error getting lead count: ' + countError.message)
+        return
       }
+
+      console.log('Total leads in database:', count)
+      setExportStatus(`Loading ${count} leads...`)
+
+      // Load all leads in batches
+      const batchSize = 1000
+      let allLeads = []
+      
+      for (let offset = 0; offset < count; offset += batchSize) {
+        console.log(`Loading batch ${Math.floor(offset/batchSize) + 1}/${Math.ceil(count/batchSize)}...`)
+        
+        const { data: batchData, error: batchError } = await supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(offset, offset + batchSize - 1)
+
+        if (batchError) {
+          console.error('Error loading batch:', batchError)
+          setExportStatus(`Error loading leads batch: ${batchError.message}`)
+          return
+        }
+
+        allLeads = [...allLeads, ...(batchData || [])]
+        
+        // Update progress
+        setExportStatus(`Loaded ${allLeads.length} of ${count} leads...`)
+      }
+
+      console.log('Successfully loaded all leads:', allLeads.length)
+      setLeads(allLeads)
+      setFilteredLeads(allLeads)
+      setExportStatus('')
+
     } catch (err) {
       console.error('Error:', err)
       setExportStatus('Error loading leads: ' + err.message)
@@ -62,34 +101,54 @@ function LeadExport() {
 
   const loadFilterOptions = async () => {
     try {
-      // Get unique states
+      // Use RPC or aggregate functions for better performance with large datasets
+      // Get unique states - limit to reasonable number for dropdown
       const { data: statesData } = await supabase
-        .from('leads')
-        .select('state')
-        .not('state', 'is', null)
-        .not('state', 'eq', '')
+        .rpc('get_unique_states')
+        .limit(100)
 
-      // Get unique cities
+      // Get unique cities - limit to reasonable number for dropdown  
       const { data: citiesData } = await supabase
-        .from('leads')
-        .select('city')
-        .not('city', 'is', null)
-        .not('city', 'eq', '')
+        .rpc('get_unique_cities')
+        .limit(500)
 
       // Get unique service types
       const { data: serviceTypesData } = await supabase
-        .from('leads')
-        .select('service_type')
-        .not('service_type', 'is', null)
-        .not('service_type', 'eq', '')
+        .rpc('get_unique_service_types')
+        .limit(200)
 
-      setAvailableOptions({
-        states: [...new Set(statesData?.map(item => item.state) || [])].sort(),
-        cities: [...new Set(citiesData?.map(item => item.city) || [])].sort(),
-        serviceTypes: [...new Set(serviceTypesData?.map(item => item.service_type) || [])].sort()
-      })
+      // Fallback to direct queries if RPC functions don't exist
+      if (!statesData || !citiesData || !serviceTypesData) {
+        console.log('RPC functions not available, using direct queries...')
+        
+        const [statesResult, citiesResult, serviceTypesResult] = await Promise.all([
+          supabase.from('leads').select('state').not('state', 'is', null).not('state', 'eq', ''),
+          supabase.from('leads').select('city').not('city', 'is', null).not('city', 'eq', ''),
+          supabase.from('leads').select('service_type').not('service_type', 'is', null).not('service_type', 'eq', '')
+        ])
+
+        setAvailableOptions({
+          states: [...new Set(statesResult.data?.map(item => item.state) || [])].sort(),
+          cities: [...new Set(citiesResult.data?.map(item => item.city) || [])].sort(),
+          serviceTypes: [...new Set(serviceTypesResult.data?.map(item => item.service_type) || [])].sort()
+        })
+      } else {
+        setAvailableOptions({
+          states: (statesData || []).sort(),
+          cities: (citiesData || []).sort(),
+          serviceTypes: (serviceTypesData || []).sort()
+        })
+      }
     } catch (err) {
       console.error('Error loading filter options:', err)
+      // Fallback: extract from already loaded leads if available
+      if (leads.length > 0) {
+        setAvailableOptions({
+          states: [...new Set(leads.map(lead => lead.state).filter(Boolean))].sort(),
+          cities: [...new Set(leads.map(lead => lead.city).filter(Boolean))].sort(),
+          serviceTypes: [...new Set(leads.map(lead => lead.service_type).filter(Boolean))].sort()
+        })
+      }
     }
   }
 
@@ -110,7 +169,7 @@ function LeadExport() {
     if (filters.serviceType) {
       filtered = filtered.filter(lead => 
         lead.service_type?.toLowerCase().includes(filters.serviceType.toLowerCase()) ||
-        lead.normalized_service_type?.toLowerCase().includes(filters.serviceType.toLowerCase())
+        lead.category?.toLowerCase().includes(filters.serviceType.toLowerCase())
       )
     }
 
@@ -120,11 +179,7 @@ function LeadExport() {
     }
 
     if (filters.hasEmail) {
-      filtered = filtered.filter(lead => 
-        (lead.email && lead.email.trim() !== '') ||
-        (lead.email2 && lead.email2.trim() !== '') ||
-        (lead.email3 && lead.email3.trim() !== '')
-      )
+      filtered = filtered.filter(lead => lead.email && lead.email.trim() !== '')
     }
 
     if (filters.hasWebsite) {
@@ -169,30 +224,136 @@ function LeadExport() {
 
   const formatLeadForExport = (lead) => {
     return {
-      'Company Name': lead.company_name || '',
-      'Service Type': lead.service_type || lead.normalized_service_type || '',
+      'Company Name': lead.name || lead.company_name || '',
+      'Service Type': lead.service_type || lead.category || '',
       'Phone': lead.phone || '',
-      'Email': lead.email || lead.email2 || lead.email3 || '',
+      'Email': lead.email || '',
       'Website': lead.website || '',
-      'Address': lead.full_address || lead.address || '',
+      'Address': lead.address || '',
       'City': lead.city || '',
       'State': lead.state || '',
+      'ZIP': lead.zip || '',
       'Rating': lead.rating || '',
-      'Review Count': lead.review_count || '',
-      'Instagram': lead.instagram_url || '',
-      'Facebook': lead.facebook_url || '',
-      'LinkedIn': lead.linkedin_url || '',
-      'Google Maps': lead.google_maps_url || '',
-      'Lead Source': lead.lead_source || '',
+      'Reviews': lead.reviews || '',
+      'Instagram': lead.instagram || '',
+      'Facebook': lead.facebook || '',
+      'LinkedIn': lead.linkedin || '',
+      'Google Maps URL': lead.google_maps_url || '',
+      'Place ID': lead.place_id || '',
+      'Source': lead.source || '',
       'Market ID': lead.market_id || '',
-      'Search Query': lead.search_query || '',
-      'Running Ads': lead.running_ads ? 'Yes' : 'No',
-      'DM Sent': lead.dm_sent ? 'Yes' : 'No',
-      'Called': lead.called ? 'Yes' : 'No',
-      'Score': lead.score || '',
-      'Notes': lead.notes || '',
+      'Verified': lead.verified ? 'Yes' : 'No',
       'Created Date': lead.created_at ? new Date(lead.created_at).toLocaleDateString() : '',
       'Updated Date': lead.updated_at ? new Date(lead.updated_at).toLocaleDateString() : ''
+    }
+  }
+
+  const createCSVContent = (leads, headers) => {
+    return [
+      headers.join(','),
+      ...leads.map(lead => 
+        headers.map(header => {
+          const value = lead[header] || ''
+          // Escape quotes and wrap in quotes if contains comma or quotes
+          return value.toString().includes(',') || value.toString().includes('"') 
+            ? `"${value.replace(/"/g, '""')}"` 
+            : value
+        }).join(',')
+      )
+    ].join('\n')
+  }
+
+  const downloadCSV = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = filename
+    link.click()
+  }
+
+  const exportToCSV = () => {
+    if (filteredLeads.length === 0) {
+      setExportStatus('No leads to export with current filters')
+      return
+    }
+
+    try {
+      const timestamp = new Date().toISOString().split('T')[0]
+      const filterSummary = [
+        filters.state && `State-${filters.state}`,
+        filters.city && `City-${filters.city}`,
+        filters.serviceType && `Service-${filters.serviceType}`,
+        filters.hasPhone && 'HasPhone',
+        filters.hasEmail && 'HasEmail',
+        filters.hasWebsite && 'HasWebsite'
+      ].filter(Boolean).join('_')
+
+      if (exportFormat === 'single') {
+        // Single file export
+        const formattedLeads = filteredLeads.map(formatLeadForExport)
+        const headers = Object.keys(formattedLeads[0])
+        const csvContent = createCSVContent(formattedLeads, headers)
+        
+        const filename = `Leads_${timestamp}${filterSummary ? '_' + filterSummary : ''}.csv`
+        downloadCSV(csvContent, filename)
+        
+        setExportStatus(`✅ Successfully downloaded ${filteredLeads.length} leads as CSV file!`)
+        
+      } else if (exportFormat === 'by-market') {
+        // Export by market (city + state)
+        const marketGroups = {}
+        filteredLeads.forEach(lead => {
+          const marketKey = `${lead.city || 'Unknown'}_${lead.state || 'Unknown'}`
+          if (!marketGroups[marketKey]) {
+            marketGroups[marketKey] = []
+          }
+          marketGroups[marketKey].push(lead)
+        })
+
+        let totalFiles = 0
+        Object.entries(marketGroups).forEach(([marketKey, leads]) => {
+          const formattedLeads = leads.map(formatLeadForExport)
+          const headers = Object.keys(formattedLeads[0])
+          const csvContent = createCSVContent(formattedLeads, headers)
+          
+          const filename = `Leads_${marketKey}_${timestamp}_${leads.length}leads.csv`
+          downloadCSV(csvContent, filename)
+          totalFiles++
+        })
+
+        setExportStatus(`✅ Successfully downloaded ${totalFiles} CSV files organized by market!`)
+        
+      } else if (exportFormat === 'by-service') {
+        // Export by service type
+        const serviceGroups = {}
+        filteredLeads.forEach(lead => {
+          const serviceKey = (lead.service_type || lead.category || 'Unknown Service').replace(/[^a-zA-Z0-9]/g, '_')
+          if (!serviceGroups[serviceKey]) {
+            serviceGroups[serviceKey] = []
+          }
+          serviceGroups[serviceKey].push(lead)
+        })
+
+        let totalFiles = 0
+        Object.entries(serviceGroups).forEach(([serviceKey, leads]) => {
+          const formattedLeads = leads.map(formatLeadForExport)
+          const headers = Object.keys(formattedLeads[0])
+          const csvContent = createCSVContent(formattedLeads, headers)
+          
+          const filename = `Leads_${serviceKey}_${timestamp}_${leads.length}leads.csv`
+          downloadCSV(csvContent, filename)
+          totalFiles++
+        })
+
+        setExportStatus(`✅ Successfully downloaded ${totalFiles} CSV files organized by service type!`)
+      }
+      
+      setTimeout(() => setExportStatus(''), 5000)
+      
+    } catch (error) {
+      console.error('CSV Export error:', error)
+      setExportStatus(`❌ CSV Export failed: ${error.message}`)
+      setTimeout(() => setExportStatus(''), 10000)
     }
   }
 
@@ -206,6 +367,15 @@ function LeadExport() {
     setExportStatus('Preparing export...')
 
     try {
+      // Check if Google Sheets service is configured
+      if (!googleSheetsService.scriptUrl) {
+        setExportStatus('📄 Google Sheets not configured. Downloading CSV file instead...')
+        setTimeout(() => {
+          exportToCSV()
+        }, 800)
+        return
+      }
+
       // Format leads for export
       const formattedLeads = filteredLeads.map(formatLeadForExport)
       
@@ -237,10 +407,12 @@ function LeadExport() {
 
     } catch (error) {
       console.error('Export error:', error)
-      setExportStatus(`❌ Export failed: ${error.message}`)
+      setExportStatus(`📄 Google Sheets failed. Downloading CSV file instead...`)
       
-      // Clear error after 10 seconds
-      setTimeout(() => setExportStatus(''), 10000)
+      // Fallback to CSV export
+      setTimeout(() => {
+        exportToCSV()
+      }, 1500)
     } finally {
       setExporting(false)
     }
@@ -250,7 +422,7 @@ function LeadExport() {
     <div className="lead-export">
       <div className="export-header">
         <h2>Lead Export Tool</h2>
-        <p>Filter and export your leads to Google Sheets for team collaboration</p>
+        <p>Filter and export your leads as CSV files for easy analysis and team collaboration</p>
       </div>
 
       <div className="export-stats">
@@ -364,6 +536,53 @@ function LeadExport() {
         </div>
       </div>
 
+      <div className="export-format-section">
+        <h3>Export Format</h3>
+        <div className="format-options">
+          <label className="format-option">
+            <input
+              type="radio"
+              name="exportFormat"
+              value="single"
+              checked={exportFormat === 'single'}
+              onChange={(e) => setExportFormat(e.target.value)}
+            />
+            <div className="option-content">
+              <strong>Single File</strong>
+              <span>All leads in one CSV file</span>
+            </div>
+          </label>
+
+          <label className="format-option">
+            <input
+              type="radio"
+              name="exportFormat"
+              value="by-market"
+              checked={exportFormat === 'by-market'}
+              onChange={(e) => setExportFormat(e.target.value)}
+            />
+            <div className="option-content">
+              <strong>By Market</strong>
+              <span>Separate CSV file for each city/state combination</span>
+            </div>
+          </label>
+
+          <label className="format-option">
+            <input
+              type="radio"
+              name="exportFormat"
+              value="by-service"
+              checked={exportFormat === 'by-service'}
+              onChange={(e) => setExportFormat(e.target.value)}
+            />
+            <div className="option-content">
+              <strong>By Service Type</strong>
+              <span>Separate CSV file for each service category</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <div className="export-actions">
         <button 
           className="btn btn-primary export-btn"
@@ -378,7 +597,10 @@ function LeadExport() {
           ) : (
             <>
               <Download size={18} />
-              Export {filteredLeads.length} Leads to Google Sheets
+              Export {filteredLeads.length} Leads 
+              {exportFormat === 'single' && ' (Single CSV)'}
+              {exportFormat === 'by-market' && ' (By Market)'}
+              {exportFormat === 'by-service' && ' (By Service)'}
             </>
           )}
         </button>
