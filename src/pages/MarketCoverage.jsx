@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Upload, RefreshCw, ChevronRight, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X, BarChart3, Info, LogOut } from 'lucide-react'
+import { MapPin, Upload, RefreshCw, ChevronRight, Star, Check, Users, TrendingUp, Target, Loader, Plus, Menu, X, BarChart3, Info } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AddMarketModal from '../components/AddMarketModal'
@@ -411,14 +411,7 @@ function MarketCoverage({ session }) {
     // when markets are reloaded, so the selection will be restored automatically
   }
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut()
-      navigate('/auth')
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
-  }
+
 
   // Handle import completion - refresh markets while preserving selection
   const handleImportComplete = () => {
@@ -797,16 +790,7 @@ function MarketCoverage({ session }) {
             )}
           </div>
           
-          {/* Mobile Logout Button */}
-          <div className="sidebar-footer">
-            <button className="logout-button" onClick={handleLogout}>
-              <LogOut size={16} />
-              <span>Sign Out</span>
-            </button>
-            <div className="user-info">
-              <span className="user-email">{session?.user?.email}</span>
-            </div>
-          </div>
+
         </aside>
 
       {/* Main Content Area */}

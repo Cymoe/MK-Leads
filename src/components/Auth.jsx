@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { getAppUrl } from '../config/environment'
 import { Loader } from 'lucide-react'
 import './Auth.css'
 
@@ -12,10 +13,13 @@ function Auth() {
     setError(null)
     
     try {
+      const redirectUrl = getAppUrl()
+      console.log('Redirecting to:', redirectUrl) // For debugging
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: redirectUrl
         }
       })
       if (error) throw error

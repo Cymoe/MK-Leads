@@ -32,7 +32,7 @@
   background-color: var(--bg-sidebar);
   border-bottom: 1px solid var(--border-sidebar);
   min-width: 0; /* Prevent overflow */
-  overflow: hidden; /* Prevent content overflow */
+  overflow: visible; /* Allow dropdown to be visible */
   position: relative; /* For absolute positioning of hamburger menu */
 }
 
@@ -236,7 +236,7 @@
   position: relative;
   flex-shrink: 0; /* Never shrink the user dropdown */
   margin-left: 0;
-  z-index: 10; /* Ensure user dropdown stays above other elements */
+  z-index: 10001; /* Ensure user dropdown stays above other elements */
 }
 
 .user-dropdown-trigger {
@@ -314,13 +314,14 @@
   right: 0;
   margin-top: 8px;
   width: 280px;
+  max-height: 400px;
   background: var(--bg-sidebar);
   border: 1px solid var(--border-sidebar);
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  z-index: 9999;
-  overflow: hidden;
+  z-index: 10000;
+  overflow: visible;
 }
 
 .dropdown-header {
