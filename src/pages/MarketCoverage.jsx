@@ -144,6 +144,10 @@ function MarketCoverage({ session }) {
         } else {
           document.body.classList.remove('sidebar-open')
         }
+        // Notify Navigation component of sidebar state change
+        window.dispatchEvent(new CustomEvent('sidebarStateChanged', {
+          detail: { isOpen: newState }
+        }))
         return newState
       })
     }
@@ -552,6 +556,10 @@ function MarketCoverage({ session }) {
     if (window.innerWidth <= 768) {
       setSidebarOpen(false)
       document.body.classList.remove('sidebar-open')
+      // Notify Navigation component of sidebar state change
+      window.dispatchEvent(new CustomEvent('sidebarStateChanged', {
+        detail: { isOpen: false }
+      }))
     }
   }
 
@@ -743,6 +751,10 @@ function MarketCoverage({ session }) {
         onClick={() => {
           setSidebarOpen(false)
           document.body.classList.remove('sidebar-open')
+          // Notify Navigation component of sidebar state change
+          window.dispatchEvent(new CustomEvent('sidebarStateChanged', {
+            detail: { isOpen: false }
+          }))
         }}
       />
 
@@ -762,6 +774,10 @@ function MarketCoverage({ session }) {
                   onClick={() => {
                     setSidebarOpen(false)
                     document.body.classList.remove('sidebar-open')
+                    // Notify Navigation component of sidebar state change
+                    window.dispatchEvent(new CustomEvent('sidebarStateChanged', {
+                      detail: { isOpen: false }
+                    }))
                   }}
                   title="Close Menu"
                 >

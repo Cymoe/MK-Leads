@@ -94,6 +94,21 @@ function Navigation({ session }) {
     window.dispatchEvent(new CustomEvent('toggleMobileSidebar'))
   }
 
+  // Listen for sidebar state changes to update hamburger icon
+  const [sidebarOpen, setSidebarOpenState] = useState(false)
+  
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarOpenState(event.detail.isOpen)
+    }
+    
+    window.addEventListener('sidebarStateChanged', handleSidebarStateChange)
+    
+    return () => {
+      window.removeEventListener('sidebarStateChanged', handleSidebarStateChange)
+    }
+  }, [])
+
   // Check if we're on mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
 
@@ -238,9 +253,9 @@ function Navigation({ session }) {
         <button 
           className="mobile-menu-toggle"
           onClick={handleToggleMobileMenu}
-          title="Open Markets Menu"
+          title={sidebarOpen ? "Close Markets Menu" : "Open Markets Menu"}
         >
-          <Menu size={24} />
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
         <div className="mobile-user-dropdown">
           {userDropdown}
