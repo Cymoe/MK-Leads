@@ -1293,8 +1293,10 @@
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
     height: calc(100vh - 140px); /* Account for header height + padding */
-    padding: 8px 8px 20px 8px; /* Extra bottom padding for easier scrolling */
+    padding: 8px 8px 80px 8px; /* Large bottom padding for browser UI */
     overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+    /* Account for mobile browser bottom bars */
+    padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
   }
 
   .market-coverage-v2 .sidebar.open {
