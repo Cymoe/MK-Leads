@@ -756,6 +756,17 @@ function MarketCoverage({ session }) {
                 <button className="btn-icon-small" onClick={handleRefreshMarkets} title="Refresh Markets">
                   <RefreshCw size={14} />
                 </button>
+                {/* Mobile close button */}
+                <button 
+                  className="btn-icon-small mobile-close-btn" 
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    document.body.classList.remove('sidebar-open')
+                  }}
+                  title="Close Menu"
+                >
+                  <X size={16} />
+                </button>
               </div>
             </div>
             <div className="sidebar-stats">

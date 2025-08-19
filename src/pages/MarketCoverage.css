@@ -245,6 +245,11 @@
   border-color: var(--border-hover);
 }
 
+/* Mobile close button - hidden on desktop */
+.mobile-close-btn {
+  display: none;
+}
+
 .sidebar-stats {
   margin: 0;
 }
@@ -1288,15 +1293,31 @@
     overflow-y: hidden; /* Prevent outer scroll, let states-list handle it */
   }
   
+  /* Show mobile close button */
+  .mobile-close-btn {
+    display: flex !important;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+  
+  .mobile-close-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+  }
+  
   /* Fix mobile scrolling for states list */
   .market-coverage-v2 .sidebar .states-list {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
     height: calc(100vh - 140px); /* Account for header height + padding */
-    padding: 8px 8px 80px 8px; /* Large bottom padding for browser UI */
+    padding: 8px 8px 120px 8px; /* Extra large bottom padding for browser UI */
     overscroll-behavior: contain; /* Prevent scroll chaining to parent */
-    /* Account for mobile browser bottom bars */
-    padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
+    /* Account for mobile browser bottom bars - use larger fallback */
+    padding-bottom: max(120px, env(safe-area-inset-bottom, 120px));
+    /* Additional padding for different mobile browser scenarios */
+    padding-bottom: max(120px, calc(env(safe-area-inset-bottom, 0px) + 60px));
   }
 
   .market-coverage-v2 .sidebar.open {

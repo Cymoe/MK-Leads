@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu } from 'lucide-react'
+import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import CryptoJS from 'crypto-js'
 import './Navigation.css'
