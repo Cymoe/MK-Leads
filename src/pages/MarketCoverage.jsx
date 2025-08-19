@@ -134,14 +134,21 @@ function MarketCoverage({ session }) {
       setShowImportModal(true)
     }
 
+    // Mobile sidebar toggle handler
+    const handleToggleMobileSidebar = () => {
+      setSidebarOpen(prev => !prev)
+    }
+
     // Add event listeners
     window.addEventListener('openAddMarketModal', handleAddMarketEvent)
     window.addEventListener('openImportLeadsModal', handleImportLeadsEvent)
+    window.addEventListener('toggleMobileSidebar', handleToggleMobileSidebar)
 
     // Cleanup
     return () => {
       window.removeEventListener('openAddMarketModal', handleAddMarketEvent)
       window.removeEventListener('openImportLeadsModal', handleImportLeadsEvent)
+      window.removeEventListener('toggleMobileSidebar', handleToggleMobileSidebar)
     }
   }, [])
 

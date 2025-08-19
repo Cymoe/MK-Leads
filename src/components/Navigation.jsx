@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload } from 'lucide-react'
+import { MapPin, MessageSquare, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import CryptoJS from 'crypto-js'
 import './Navigation.css'
@@ -89,58 +89,54 @@ function Navigation({ session }) {
     window.dispatchEvent(new CustomEvent('openImportLeadsModal'))
   }
 
-  return (
-    <nav className="navigation">
-      <div className="nav-links">
-        <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <MapPin size={18} />
-          <span>Markets</span>
-        </NavLink>
-        <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <LayoutDashboard size={18} />
-          <span>Dashboard</span>
-        </NavLink>
-        <NavLink to="/leads" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <Database size={18} />
-          <span>Leads</span>
-        </NavLink>
-        <NavLink to="/export" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <Download size={18} />
-          <span>Export</span>
-        </NavLink>
-        <NavLink to="/claude" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <MessageSquare size={18} />
-          <span>Claude</span>
-        </NavLink>
+  const handleToggleMobileMenu = () => {
+    // Dispatch custom event that MarketCoverage can listen to for opening/closing sidebar
+    window.dispatchEvent(new CustomEvent('toggleMobileSidebar'))
+  }
 
-      </div>
-      
-      {/* Action Buttons */}
-      {session && showActionButtons && (
-        <div className="nav-actions">
-          <button className="btn btn-secondary" onClick={handleAddMarket}>
-            <Plus size={12} />
-            <span>Add Market</span>
-          </button>
-          <button className="btn btn-primary" onClick={handleImportLeads}>
-            <Upload size={12} />
-            <span>Import Leads</span>
-          </button>
+  // Check if we're on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
+  const userDropdown = session && (
+    <div className="nav-user" ref={dropdownRef}>
+      <button 
+        className="user-dropdown-trigger"
+        onClick={() => setDropdownOpen(!dropdownOpen)}
+      >
+        <div className="user-avatar">
+          <div className="avatar-fallback">
+            {getUserInitials(session.user.email)}
+          </div>
+          <img 
+            src={getGravatarUrl(session.user.email, 32)} 
+            alt="User Avatar"
+            className="avatar-img"
+            onLoad={(e) => {
+              // Hide fallback when image loads successfully
+              e.target.previousSibling.style.display = 'none'
+              e.target.style.display = 'block'
+            }}
+            onError={(e) => {
+              // Show fallback if image fails to load
+              console.log('Avatar failed to load:', e.target.src)
+              e.target.style.display = 'none'
+              e.target.previousSibling.style.display = 'flex'
+            }}
+            style={{ display: 'none' }}
+          />
         </div>
-      )}
+        <ChevronDown size={14} className={`dropdown-chevron ${dropdownOpen ? 'open' : ''}`} />
+      </button>
       
-      {session && (
-        <div className="nav-user" ref={dropdownRef}>
-          <button 
-            className="user-dropdown-trigger"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            <div className="user-avatar">
+      {dropdownOpen && (
+        <div className="user-dropdown-menu">
+          <div className="dropdown-header">
+            <div className="user-avatar-large">
               <div className="avatar-fallback">
                 {getUserInitials(session.user.email)}
               </div>
               <img 
-                src={getGravatarUrl(session.user.email, 32)} 
+                src={getGravatarUrl(session.user.email, 40)} 
                 alt="User Avatar"
                 className="avatar-img"
                 onLoad={(e) => {
@@ -150,77 +146,107 @@ function Navigation({ session }) {
                 }}
                 onError={(e) => {
                   // Show fallback if image fails to load
-                  console.log('Avatar failed to load:', e.target.src)
+                  console.log('Large avatar failed to load:', e.target.src)
                   e.target.style.display = 'none'
                   e.target.previousSibling.style.display = 'flex'
                 }}
                 style={{ display: 'none' }}
               />
             </div>
-            <ChevronDown size={14} className={`dropdown-chevron ${dropdownOpen ? 'open' : ''}`} />
+            <div className="user-details">
+              <span className="user-name">{session.user.email?.split('@')[0] || 'User'}</span>
+              <span className="user-email-small">{session.user.email}</span>
+            </div>
+          </div>
+          
+          <div className="dropdown-divider"></div>
+          
+          <button 
+            className="dropdown-item"
+            onClick={toggleTheme}
+          >
+            <div className="dropdown-item-icon">
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </div>
+            <span>Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
           </button>
           
-          {dropdownOpen && (
-            <div className="user-dropdown-menu">
-              <div className="dropdown-header">
-                <div className="user-avatar-large">
-                  <div className="avatar-fallback">
-                    {getUserInitials(session.user.email)}
-                  </div>
-                  <img 
-                    src={getGravatarUrl(session.user.email, 40)} 
-                    alt="User Avatar"
-                    className="avatar-img"
-                    onLoad={(e) => {
-                      // Hide fallback when image loads successfully
-                      e.target.previousSibling.style.display = 'none'
-                      e.target.style.display = 'block'
-                    }}
-                    onError={(e) => {
-                      // Show fallback if image fails to load
-                      console.log('Large avatar failed to load:', e.target.src)
-                      e.target.style.display = 'none'
-                      e.target.previousSibling.style.display = 'flex'
-                    }}
-                    style={{ display: 'none' }}
-                  />
-                </div>
-                <div className="user-details">
-                  <span className="user-name">{session.user.email?.split('@')[0] || 'User'}</span>
-                  <span className="user-email-small">{session.user.email}</span>
-                </div>
-              </div>
-              
-              <div className="dropdown-divider"></div>
-              
-              <button 
-                className="dropdown-item"
-                onClick={toggleTheme}
-              >
-                <div className="dropdown-item-icon">
-                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                </div>
-                <span>Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
-              </button>
-              
-              <div className="dropdown-divider"></div>
-              
-              <button 
-                className="dropdown-item logout-item"
-                onClick={handleSignOutClick}
-              >
-                <div className="dropdown-item-icon">
-                  <LogOut size={16} />
-                </div>
-                <span>Sign Out</span>
-              </button>
+          <div className="dropdown-divider"></div>
+          
+          <button 
+            className="dropdown-item logout-item"
+            onClick={handleSignOutClick}
+          >
+            <div className="dropdown-item-icon">
+              <LogOut size={16} />
             </div>
-          )}
+            <span>Sign Out</span>
+          </button>
         </div>
       )}
-      
+    </div>
+  )
 
-    </nav>
+  return (
+    <>
+      <nav className="navigation">
+        <div className="nav-links">
+          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <MapPin size={18} />
+            <span>Markets</span>
+          </NavLink>
+          <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <LayoutDashboard size={18} />
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/leads" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <Database size={18} />
+            <span>Leads</span>
+          </NavLink>
+          <NavLink to="/export" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <Download size={18} />
+            <span>Export</span>
+          </NavLink>
+          <NavLink to="/claude" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <MessageSquare size={18} />
+            <span>Claude</span>
+          </NavLink>
+        </div>
+        
+        {/* Action Buttons */}
+        {session && showActionButtons && (
+          <div className="nav-actions">
+            <button className="btn btn-secondary" onClick={handleAddMarket}>
+              <Plus size={12} />
+              <span>Add Market</span>
+            </button>
+            <button className="btn btn-primary" onClick={handleImportLeads}>
+              <Upload size={12} />
+              <span>Import Leads</span>
+            </button>
+          </div>
+        )}
+        
+        {/* User dropdown - only show on desktop */}
+        <div className="nav-user-desktop">
+          {userDropdown}
+        </div>
+      </nav>
+
+      {/* Mobile top bar with hamburger menu and user dropdown */}
+      <div className="mobile-top-bar">
+        <button 
+          className="mobile-menu-toggle"
+          onClick={handleToggleMobileMenu}
+          title="Open Markets Menu"
+        >
+          <Menu size={24} />
+        </button>
+        <div className="mobile-user-dropdown">
+          {userDropdown}
+        </div>
+      </div>
+    </>
   )
 }
 

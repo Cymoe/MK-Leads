@@ -17,6 +17,17 @@
   z-index: 999;
 }
 
+/* Mobile positioning adjustments to avoid user dropdown overlap */
+@media (max-width: 768px) {
+  .admin-tools-toggle {
+    bottom: 80px; /* Move above mobile navigation */
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    z-index: 500; /* Below user dropdown but above navigation */
+  }
+}
+
 .admin-tools-toggle:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
@@ -33,6 +44,18 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   z-index: 998;
   animation: slideUp 0.2s ease-out;
+}
+
+/* Mobile panel positioning adjustments */
+@media (max-width: 768px) {
+  .admin-tools-panel {
+    bottom: 135px; /* Position above the repositioned button */
+    right: 16px;
+    width: calc(100vw - 32px); /* Full width with margins */
+    max-width: 320px;
+    max-height: 60vh; /* Limit height on mobile */
+    overflow-y: auto;
+  }
 }
 
 @keyframes slideUp {
