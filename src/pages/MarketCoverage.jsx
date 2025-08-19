@@ -7,6 +7,7 @@ import ImportModal from '../components/ImportModal'
 import ServiceSearchModal from '../components/ServiceSearchModal'
 import MarketIntelligence from '../components/MarketIntelligence'
 import Navigation from '../components/Navigation'
+import LeadsModal from '../components/LeadsModal'
 import { calculateEnhancedCoverage, coreUIServices } from '../utils/enhancedServiceMapping'
 import './MarketCoverage.css'
 
@@ -30,6 +31,8 @@ function MarketCoverage({ session }) {
   const [selectionMode, setSelectionMode] = useState('individual') // 'individual' or 'batch'
   const [isHeaderCondensed, setIsHeaderCondensed] = useState(false)
   const [enhancedCoverage, setEnhancedCoverage] = useState(null)
+  const [showLeadsModal, setShowLeadsModal] = useState(false)
+  const [leadsModalData, setLeadsModalData] = useState(null)
   
   // Map states to regions for service prioritization
   const getRegionForState = (state) => {
@@ -1074,15 +1077,14 @@ function MarketCoverage({ session }) {
                           {getServiceLeadCount(service.name) > 0 && (
                                                     <button className="search-btn view-leads" onClick={(e) => {
                           e.stopPropagation()
-                          // Open leads table in new tab with filters
-                          const params = new URLSearchParams({
+                          // Show leads in modal instead of new tab
+                          setLeadsModalData({
                             city: selectedMarket.name,
                             state: selectedMarket.state,
-                            serviceType: service.name
+                            serviceType: service.name,
+                            leadCount: getServiceLeadCount(service.name)
                           })
-                          // Use current domain for both local and production
-                          const url = `${window.location.origin}/leads?${params.toString()}`
-                          window.open(url, '_blank')
+                          setShowLeadsModal(true)
                         }}>
                           View Leads
                         </button>
@@ -1234,6 +1236,13 @@ function MarketCoverage({ session }) {
           handleRefreshMarkets()
           fetchServiceTypeCounts(selectedMarket.name, selectedMarket.state)
         }}
+      />
+
+      {/* Leads Modal */}
+      <LeadsModal
+        isOpen={showLeadsModal}
+        onClose={() => setShowLeadsModal(false)}
+        filters={leadsModalData}
       />
       
     </div>
