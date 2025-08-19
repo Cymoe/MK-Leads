@@ -136,7 +136,16 @@ function MarketCoverage({ session }) {
 
     // Mobile sidebar toggle handler
     const handleToggleMobileSidebar = () => {
-      setSidebarOpen(prev => !prev)
+      setSidebarOpen(prev => {
+        const newState = !prev
+        // Prevent body scroll when sidebar is open
+        if (newState) {
+          document.body.classList.add('sidebar-open')
+        } else {
+          document.body.classList.remove('sidebar-open')
+        }
+        return newState
+      })
     }
 
     // Add event listeners
@@ -149,6 +158,8 @@ function MarketCoverage({ session }) {
       window.removeEventListener('openAddMarketModal', handleAddMarketEvent)
       window.removeEventListener('openImportLeadsModal', handleImportLeadsEvent)
       window.removeEventListener('toggleMobileSidebar', handleToggleMobileSidebar)
+      // Ensure body scroll is restored on cleanup
+      document.body.classList.remove('sidebar-open')
     }
   }, [])
 
@@ -540,6 +551,7 @@ function MarketCoverage({ session }) {
     // Close sidebar on mobile after selection
     if (window.innerWidth <= 768) {
       setSidebarOpen(false)
+      document.body.classList.remove('sidebar-open')
     }
   }
 
@@ -728,7 +740,10 @@ function MarketCoverage({ session }) {
       {/* Sidebar Overlay for Mobile */}
       <div 
         className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
-        onClick={() => setSidebarOpen(false)}
+        onClick={() => {
+          setSidebarOpen(false)
+          document.body.classList.remove('sidebar-open')
+        }}
       />
 
       {/* Sidebar - Extends to absolute top */}
