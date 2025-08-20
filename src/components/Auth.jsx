@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { getAppUrl } from '../config/environment'
 import { Loader } from 'lucide-react'
 import './Auth.css'
 
@@ -13,21 +12,28 @@ function Auth() {
     setError(null)
     
     try {
-      const redirectUrl = getAppUrl()
-      console.log('Redirecting to:', redirectUrl) // For debugging
+      console.log('Initiating Google OAuth...')
       
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl
-        }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google'
       })
-      if (error) throw error
+      
+      if (error) {
+        console.error('OAuth initiation error:', error)
+        throw error
+      }
+      
+      console.log('OAuth URL generated:', data.url)
+      // Browser will redirect automatically
+      
     } catch (error) {
-      setError(error.message)
+      console.error('Google Sign In error:', error)
+      setError(`Authentication failed: ${error.message}`)
       setLoading(false)
     }
   }
+
+
 
   return (
     <div className="auth-container">
@@ -67,6 +73,8 @@ function Auth() {
             {error}
           </div>
         )}
+
+
 
         <div className="auth-info">
           <p>By signing in, you agree to use ReactLeads for lead generation and business development.</p>

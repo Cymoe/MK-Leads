@@ -230,6 +230,11 @@ function MarketCoverage({ session }) {
       
       if (marketsError) throw marketsError
       
+      // Debug: Log first market to see available fields
+      if (marketsData && marketsData.length > 0) {
+        console.log('Sample market data:', marketsData[0])
+      }
+      
       // Get lead counts per market using a more efficient approach
       let { data: leadCounts, error: leadError } = await supabase
         .rpc('get_lead_counts_by_city')

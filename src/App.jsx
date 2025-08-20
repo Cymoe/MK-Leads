@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Loader } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import MarketCoverage from './pages/MarketCoverage'
 import ClaudeChat from './components/ClaudeChat'
@@ -26,16 +27,53 @@ function App() {
     // Set global toast handler
     setGlobalToastHandler(toast)
     
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
+    // Check for auth callback in URL
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const errorDescription = hashParams.get('error_description')
+    if (errorDescription) {
+      console.error('Auth error from URL:', errorDescription)
+    }
+    
+    // Handle OAuth callback and get initial session
+    const handleInitialAuth = async () => {
+      try {
+        // Check if this is an OAuth callback
+        const isCallback = window.location.hash.includes('access_token') || 
+                          window.location.search.includes('code=')
+        
+        if (isCallback) {
+          console.log('OAuth callback detected, processing...')
+          // Let Supabase handle the callback
+          const { data, error } = await supabase.auth.getSession()
+          if (error) {
+            console.error('OAuth callback error:', error)
+          } else {
+            console.log('OAuth callback successful:', data.session)
+          }
+          setSession(data.session)
+        } else {
+          // Normal session check
+          const { data: { session }, error } = await supabase.auth.getSession()
+          if (error) {
+            console.error('Error getting session:', error)
+          }
+          console.log('Initial session:', session)
+          setSession(session)
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    handleInitialAuth()
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session)
       setSession(session)
     })
 
@@ -45,7 +83,11 @@ function App() {
   if (loading) {
     return (
       <div className="app-loading">
-        <h2>Loading...</h2>
+        <div className="loading-content">
+          <Loader size={48} className="loading-spinner" />
+          <h2>ReactLeads</h2>
+          <p>Initializing your lead generation platform...</p>
+        </div>
       </div>
     )
   }
@@ -71,7 +113,7 @@ function App() {
           <Route path="/dashboard" element={
             <>
               <Navigation session={session} />
-              <LeadGenDashboard />
+              <LeadGenDashboard session={session} />
             </>
           } />
           <Route path="/leads" element={

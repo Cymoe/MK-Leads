@@ -764,6 +764,21 @@ function ServiceSearchModal({
       setDisabledQueries({})
     }
   }, [isOpen, selectedServices])
+
+  // Prevent body scroll when modal is open (mobile fix)
+  useEffect(() => {
+    if (isOpen) {
+      // Store original body overflow
+      const originalStyle = window.getComputedStyle(document.body).overflow
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+      
+      return () => {
+        // Restore original body overflow
+        document.body.style.overflow = originalStyle
+      }
+    }
+  }, [isOpen])
   
   if (!isOpen) return null
   

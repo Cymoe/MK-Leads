@@ -56,7 +56,9 @@ function LeadsTable() {
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const [leadsPerPage, setLeadsPerPage] = useState(25)
+  const [leadsPerPage, setLeadsPerPage] = useState(10) // Reduced for better mobile performance
+  const [totalCount, setTotalCount] = useState(0)
+  const [pageLoading, setPageLoading] = useState(false)
   
   // Filters - Initialize with combined filters
   const [filters, setFilters] = useState({
@@ -82,24 +84,26 @@ function LeadsTable() {
     serviceTypes: []
   })
 
-  // Load leads on component mount
+  // Load leads on component mount and when page changes
   useEffect(() => {
     loadLeads()
-    loadFilterOptions()
-  }, [])
+    if (currentPage === 1) {
+      loadFilterOptions()
+    }
+  }, [currentPage, leadsPerPage])
 
   // Reload filter options when state changes to update city list
   useEffect(() => {
     loadFilterOptions()
   }, [filters.state])
 
-  // Apply search and filters when they change
+  // Apply search when it changes (filters are now server-side)
   useEffect(() => {
-    // Only apply filters if we have leads loaded
+    // Only apply search if we have leads loaded
     if (leads.length > 0 || !loading) {
-      applyFiltersAndSearch()
+      applySearch()
     }
-  }, [leads, searchTerm, filters, loading])
+  }, [leads, searchTerm, loading])
 
   const loadLeads = async () => {
     try {
@@ -174,44 +178,37 @@ function LeadsTable() {
       
       console.log('Total leads count:', count)
       
-      // Now load all data in batches
-      let allData = []
-      const batchSize = 1000
+      // Load only the current page of data
+      const offset = (currentPage - 1) * leadsPerPage
       
-      for (let offset = 0; offset < (count || 0); offset += batchSize) {
-        // Rebuild the same query for data fetching
-        let dataQuery = supabase.from('leads').select('*')
-        
-        if (navigationFilters.state) {
-          dataQuery = dataQuery.eq('state', navigationFilters.state)
-        }
-        
-        if (navigationFilters.city) {
-          dataQuery = dataQuery.eq('city', navigationFilters.city)
-        }
-        
-        if (navigationFilters.serviceType) {
-          const mappedTypes = serviceMapping[navigationFilters.serviceType] || [navigationFilters.serviceType]
-          dataQuery = dataQuery.in('service_type', mappedTypes)
-        }
-        
-        const { data: batch, error } = await dataQuery
-          .order('created_at', { ascending: false })
-          .range(offset, Math.min(offset + batchSize - 1, (count || 0) - 1))
-        
-        if (error) {
-          console.error('Error loading batch:', error)
-          throw error
-        }
-        
-        if (batch) {
-          allData = [...allData, ...batch]
-          console.log(`Loaded ${batch.length} leads in batch starting at ${offset}`)
-        }
+      // Rebuild the same query for paginated data fetching
+      let dataQuery = supabase.from('leads').select('*')
+      
+      if (navigationFilters.state) {
+        dataQuery = dataQuery.eq('state', navigationFilters.state)
       }
       
-      console.log('Total leads loaded:', allData.length)
-      setLeads(allData)
+      if (navigationFilters.city) {
+        dataQuery = dataQuery.eq('city', navigationFilters.city)
+      }
+      
+      if (navigationFilters.serviceType) {
+        const mappedTypes = serviceMapping[navigationFilters.serviceType] || [navigationFilters.serviceType]
+        dataQuery = dataQuery.in('service_type', mappedTypes)
+      }
+      
+      const { data: pageData, error: dataError } = await dataQuery
+        .order('created_at', { ascending: false })
+        .range(offset, offset + leadsPerPage - 1)
+      
+      if (dataError) {
+        console.error('Error loading page data:', dataError)
+        throw dataError
+      }
+      
+      console.log(`Loaded ${pageData?.length || 0} leads for page ${currentPage}`)
+      setLeads(pageData || [])
+      setTotalCount(count || 0)
       
     } catch (err) {
       console.error('Error loading leads:', err)
@@ -315,7 +312,7 @@ function LeadsTable() {
     }
   }
 
-  const applyFiltersAndSearch = () => {
+  const applySearch = () => {
     let filtered = [...leads]
 
     // Apply search term
@@ -332,78 +329,7 @@ function LeadsTable() {
       )
     }
 
-    // Apply filters only if they differ from navigation filters (for user-applied filters)
-    if (filters.state) {
-      filtered = filtered.filter(lead => lead.state === filters.state)
-    }
-
-    if (filters.city) {
-      filtered = filtered.filter(lead => lead.city === filters.city)
-    }
-
-    if (filters.serviceType) {
-      // Map UI service names to database service types
-      const serviceMapping = {
-        'Deck Builders': ['Deck builder', 'Deck contractor', 'Deck construction', 'Deck Builders'],
-        'Concrete Contractors': ['Concrete contractor', 'Concrete work', 'Concrete company', 'Contractor', 'Concrete Contractors'],
-        'Window & Door': ['Window installation service', 'Door installation', 'Window and door contractor', 'Window installer', 'Window tinting service', 'Window & Door'],
-        'Roofing Contractors': ['Roofing contractor', 'Roofer', 'Roofing company', 'Roof repair', 'Roofing Contractors'],
-        'Tree Services': ['Tree service', 'Tree removal', 'Tree trimming', 'Arborist', 'Tree Services'],
-        'Solar Installers': ['Solar energy contractor', 'Solar panel installation', 'Solar installer', 'Solar Installers'],
-        'Fence Contractors': ['Fence contractor', 'Fence installation', 'Fencing company', 'Fence Contractors'],
-        'Pool Builders': ['Swimming pool contractor', 'Pool cleaning service', 'Pool installation', 'Pool repair', 'Pool Builders'],
-        'Turf Installers': ['Landscaper', 'Lawn care service', 'Artificial turf installation', 'Turf supplier', 'Turf installation', 'Turf Installers'],
-        'Kitchen Remodeling': ['Kitchen remodeler', 'Kitchen renovation', 'Kitchen contractor', 'Kitchen Remodeling'],
-        'Bathroom Remodeling': ['Bathroom remodeler', 'Bathroom renovation', 'Bathroom contractor', 'Bathroom Remodeling'],
-        'Whole Home Remodel': ['General contractor', 'Remodeler', 'Home renovation', 'Construction company', 'General', 'Whole Home Remodel'],
-        'Home Addition': ['General contractor', 'Home addition contractor', 'Room addition', 'Construction company', 'Home Addition'],
-        'Exterior Contractors': ['Siding contractor', 'Exterior renovation', 'Exterior remodeling', 'Gutter service', 'Exterior Contractors'],
-        'Hardscape Contractors': ['Landscape designer', 'Hardscaping', 'Patio builder', 'Hardscape contractor', 'Paving contractor', 'Hardscape Contractors'],
-        'Landscaping Design': ['Landscaper', 'Landscape designer', 'Landscaping service', 'Landscape architect', 'Landscape lighting designer', 'Landscaping Design'],
-        'Outdoor Kitchen': ['Outdoor kitchen installation', 'Outdoor kitchen contractor', 'BBQ island builder', 'Outdoor Kitchen'],
-        'Painting Companies': ['Painter', 'Painting contractor', 'House painter', 'Painting Companies'],
-        'Smart Home': ['Smart home installation', 'Home automation', 'Technology installer', 'Smart Home'],
-        'Epoxy Flooring': ['Epoxy flooring contractor', 'Floor coating', 'Garage floor epoxy', 'Epoxy Flooring'],
-        'Garage Door Services': ['Garage door installer', 'Garage door repair', 'Overhead door contractor', 'Garage Door Services'],
-        'Cabinet Makers': ['Cabinet maker', 'Cabinet installer', 'Kitchen cabinet contractor', 'Cabinet Makers'],
-        'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer', 'Tile & Stone'],
-        'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving', 'Paving & Asphalt'],
-        'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company', 'Custom Home Builders'],
-        'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer', 'Flooring Contractors'],
-        'EV Charging Installation': ['EV charging installer', 'Electric vehicle charger installation', 'EV charging station', 'EV Charging Installation'],
-        'Artificial Turf Installation': ['Artificial turf installer', 'Synthetic grass installation', 'Artificial grass', 'Artificial Turf Installation'],
-        'Smart Home Installation': ['Smart home installer', 'Home automation installation', 'Connected home', 'Smart Home Installation'],
-        'Outdoor Living Structures': ['Carport and pergola builder', 'Pergola builder', 'Gazebo builder', 'Patio cover installation', 'Outdoor Living Structures'],
-        'Custom Lighting Design': ['Lighting designer', 'Lighting contractor', 'Landscape lighting', 'Custom Lighting Design'],
-        'Water Features Installation': ['Water feature installer', 'Fountain installation', 'Pond builder', 'Water Features Installation'],
-        'Outdoor Kitchen Installation': ['Outdoor kitchen builder', 'BBQ island installation', 'Patio kitchen', 'Outdoor Kitchen Installation'],
-        'Palapa/Tropical Structures': ['Palapa builder', 'Tiki hut builder', 'Tropical structure', 'Palapa/Tropical Structures']
-      }
-      
-      const mappedTypes = serviceMapping[filters.serviceType] || [filters.serviceType]
-      
-      filtered = filtered.filter(lead => {
-        return mappedTypes.some(type => 
-          lead.service_type === type || 
-          lead.service_type?.toLowerCase() === type.toLowerCase()
-        )
-      })
-    }
-
-    if (filters.hasPhone) {
-      filtered = filtered.filter(lead => lead.phone && lead.phone.trim() !== '')
-    }
-
-    if (filters.hasEmail) {
-      filtered = filtered.filter(lead => lead.email && lead.email.trim() !== '')
-    }
-
-    if (filters.hasWebsite) {
-      filtered = filtered.filter(lead => lead.website && lead.website.trim() !== '')
-    }
-
     setFilteredLeads(filtered)
-    setCurrentPage(1) // Reset to first page when filters change
   }
 
   const handleFilterChange = (key, value) => {
@@ -440,13 +366,15 @@ function LeadsTable() {
     return phone
   }
 
-  // Pagination calculations
-  const indexOfLastLead = currentPage * leadsPerPage
-  const indexOfFirstLead = indexOfLastLead - leadsPerPage
-  const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead)
-  const totalPages = Math.ceil(filteredLeads.length / leadsPerPage)
+  // Server-side pagination calculations
+  const currentLeads = leads // Data is already paginated from server
+  const totalPages = Math.ceil(totalCount / leadsPerPage)
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber)
+  const paginate = (pageNumber) => {
+    if (pageNumber !== currentPage) {
+      setCurrentPage(pageNumber)
+    }
+  }
 
   if (loading) {
     return (
@@ -720,15 +648,15 @@ function LeadsTable() {
           <button 
             className="btn btn-secondary"
             onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || pageLoading}
           >
-            <ChevronLeft size={16} />
+            {pageLoading ? <Loader size={16} className="spinning" /> : <ChevronLeft size={16} />}
             Previous
           </button>
           
           <div className="page-info">
             <span>Page {currentPage} of {totalPages}</span>
-            <span>({indexOfFirstLead + 1}-{Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length})</span>
+            <span>({((currentPage - 1) * leadsPerPage) + 1}-{Math.min(currentPage * leadsPerPage, totalCount)} of {totalCount})</span>
           </div>
           
           <div className="per-page-selector">
@@ -754,10 +682,10 @@ function LeadsTable() {
           <button 
             className="btn btn-secondary"
             onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || pageLoading}
           >
             Next
-            <ChevronRight size={16} />
+            {pageLoading ? <Loader size={16} className="spinning" /> : <ChevronRight size={16} />}
           </button>
         </div>
       )}

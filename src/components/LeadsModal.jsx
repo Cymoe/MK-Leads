@@ -245,14 +245,26 @@ function LeadsModal({ isOpen, onClose, filters }) {
                     {lead.phone && (
                       <div className="info-item">
                         <Phone size={14} />
-                        <span>{lead.phone}</span>
+                        <a 
+                          href={`tel:${lead.phone}`}
+                          className="contact-link phone-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {lead.phone}
+                        </a>
                       </div>
                     )}
                     
                     {lead.email && (
                       <div className="info-item">
                         <Mail size={14} />
-                        <span>{lead.email}</span>
+                        <a 
+                          href={`mailto:${lead.email}`}
+                          className="contact-link email-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {lead.email}
+                        </a>
                       </div>
                     )}
                     
@@ -309,12 +321,24 @@ function LeadsModal({ isOpen, onClose, filters }) {
                     )}
                     {selectedLead.phone && (
                       <div className="detail-item">
-                        <strong>Phone:</strong> {selectedLead.phone}
+                        <strong>Phone:</strong> 
+                        <a 
+                          href={`tel:${selectedLead.phone}`}
+                          className="contact-link phone-link"
+                        >
+                          {selectedLead.phone}
+                        </a>
                       </div>
                     )}
                     {selectedLead.email && (
                       <div className="detail-item">
-                        <strong>Email:</strong> {selectedLead.email}
+                        <strong>Email:</strong> 
+                        <a 
+                          href={`mailto:${selectedLead.email}`}
+                          className="contact-link email-link"
+                        >
+                          {selectedLead.email}
+                        </a>
                       </div>
                     )}
                     {selectedLead.website && (

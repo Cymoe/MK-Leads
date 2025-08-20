@@ -351,16 +351,189 @@
 }
 
 /* Mobile responsiveness */
-@media (max-width: 640px) {
-  .config-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-start;
   }
   
   .service-search-modal {
-    max-width: 100%;
-    width: 100%;
-    height: 100%;
-    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height */
+    max-width: none;
+    max-height: none;
     border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-header {
+    padding: 16px;
+    flex-shrink: 0;
+    /* Make header sticky */
+    position: sticky;
+    top: 0;
+    background: var(--bg-medium);
+    z-index: 10;
+    border-bottom: 1px solid var(--bg-light);
+  }
+  
+  .modal-header h2 {
+    font-size: 18px;
+  }
+  
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    /* Enable smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .modal-footer {
+    padding: 16px;
+    flex-shrink: 0;
+    /* Make footer sticky */
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-medium);
+    border-top: 1px solid var(--bg-light);
+    z-index: 10;
+  }
+  
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .config-item {
+    gap: 6px;
+  }
+  
+  .config-item label {
+    font-size: 12px;
+  }
+  
+  .form-input {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .services-list {
+    gap: 6px;
+  }
+  
+  .service-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .service-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  
+  .query-count {
+    font-size: 10px;
+  }
+  
+  /* Search Progress Mobile */
+  .search-progress-section {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+  
+  .search-progress-section h3 {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .progress-stats {
+    font-size: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .search-item {
+    padding: 12px;
+  }
+  
+  .search-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .search-service {
+    font-size: 14px;
+  }
+  
+  .search-status {
+    font-size: 12px;
+  }
+  
+  .search-results {
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  
+  /* Query Details Mobile */
+  .query-details-section {
+    margin: 16px 0;
+  }
+  
+  .query-details-toggle {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  
+  .query-details-content {
+    padding: 12px;
+    max-height: 200px;
+  }
+  
+  .service-queries {
+    margin-bottom: 12px;
+  }
+  
+  .service-queries h4 {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  
+  .service-queries .query-item {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  .modal-header {
+    padding: 12px;
+  }
+  
+  .modal-header h2 {
+    font-size: 16px;
+  }
+  
+  .modal-body {
+    padding: 12px;
+  }
+  
+  .modal-footer {
+    padding: 12px;
+  }
+  
+  .config-grid {
+    gap: 12px;
+  }
+  
+  .search-progress-section {
+    margin-top: 12px;
+    padding-top: 12px;
   }
 }

@@ -252,9 +252,9 @@
   flex: 1;
 }
 
-/* Website Links */
-.website-link {
-  color: var(--color-professional-blue);
+/* Contact Links - Website, Phone, Email */
+.website-link,
+.contact-link {
   text-decoration: none;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -266,9 +266,36 @@
   margin: -2px -4px;
 }
 
+/* Website Links */
+.website-link {
+  color: var(--color-professional-blue);
+}
+
 .website-link:hover {
   color: #60A5FA;
   background: rgba(59, 130, 246, 0.1);
+  text-decoration: underline;
+}
+
+/* Phone Links */
+.phone-link {
+  color: var(--color-success-green, #10B981);
+}
+
+.phone-link:hover {
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.1);
+  text-decoration: underline;
+}
+
+/* Email Links */
+.email-link {
+  color: #F59E0B;
+}
+
+.email-link:hover {
+  color: #FBBF24;
+  background: rgba(245, 158, 11, 0.1);
   text-decoration: underline;
 }
 

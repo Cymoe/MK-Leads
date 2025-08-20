@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Supabase Auth</h1>
+    <button id="testBtn">Test Google Auth</button>
+    <div id="result"></div>
+    
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://dicscsehiegqsmtwewis.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpY3Njc2VoaWVncXNtdHdld2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1MDg3MTcsImV4cCI6MjA2OTA4NDcxN30.oiSgY_LsqweXzYbThLly6FQueQEqdHhAWxG7gn3s8Sw'
+        );
+        
+        document.getElementById('testBtn').onclick = async () => {
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin
+                    }
+                });
+                
+                if (error) {
+                    document.getElementById('result').innerHTML = 'Error: ' + error.message;
+                } else {
+                    document.getElementById('result').innerHTML = 'Success! Redirecting...';
+                }
+            } catch (e) {
+                document.getElementById('result').innerHTML = 'Exception: ' + e.message;
+            }
+        };
+    </script>
+</body>
+</html>
