@@ -223,13 +223,18 @@ function MarketCoverage({ session }) {
       setLoading(true)
       console.log('Fetching markets from Supabase...')
       
-      // Fetch markets from the markets view
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('Current user ID:', user?.id)
+      
+      // Fetch markets from the public_markets view (temporary for testing)
       const { data: marketsData, error: marketsError } = await supabase
-        .from('markets')
+        .from('public_markets')
         .select('*')
       
       if (marketsError) throw marketsError
       
+      console.log('Markets fetched:', marketsData?.length || 0)
       // Debug: Log first market to see available fields
       if (marketsData && marketsData.length > 0) {
         console.log('Sample market data:', marketsData[0])
