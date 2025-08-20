@@ -368,7 +368,7 @@
 
   .leads-modal {
     /* Use more conservative height on mobile */
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
     min-height: 300px;
     /* Ensure modal is positioned properly */
     margin-top: 0;
@@ -435,11 +435,11 @@
     padding: 8px;
     /* Ensure details modal also respects navigation */
     align-items: flex-start;
-    padding-top: 60px;
+    padding-top: 80px;
   }
 
   .lead-details-modal {
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
     width: 100%;
     max-width: none;
   }
@@ -479,11 +479,11 @@
 @media (max-width: 480px) {
   .leads-modal-overlay {
     padding: 4px;
-    padding-top: 50px; /* Reduced for smaller screens */
+    padding-top: 70px; /* Increased to account for mobile header */
   }
 
   .leads-modal {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 140px);
     width: calc(100vw - 8px);
   }
 
@@ -535,11 +535,11 @@
   /* Details modal for small screens */
   .lead-details-overlay {
     padding: 4px;
-    padding-top: 50px;
+    padding-top: 70px;
   }
 
   .lead-details-modal {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 140px);
     width: calc(100vw - 8px);
   }
 

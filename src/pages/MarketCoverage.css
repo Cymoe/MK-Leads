@@ -1294,10 +1294,13 @@
     width: 85%;
     max-width: 320px;
     height: 100vh; /* Full height */
-    z-index: 1000;
+    height: 100dvh; /* Use dynamic viewport height for better mobile support */
+    z-index: 10003; /* Higher than mobile navigation (10002) */
     transition: left 0.3s ease;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
     overflow-y: hidden; /* Prevent outer scroll, let states-list handle it */
+    /* Ensure sidebar covers everything */
+    background: var(--bg-medium);
   }
   
   /* Show mobile close button */
@@ -1318,13 +1321,11 @@
   .market-coverage-v2 .sidebar .states-list {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
-    height: calc(100vh - 140px); /* Account for header height + padding */
-    padding: 8px 8px 120px 8px; /* Extra large bottom padding for browser UI */
+    height: calc(100dvh - 140px); /* Account for header height + padding */
+    padding: 8px 8px 60px 8px; /* Bottom padding for comfortable scrolling */
     overscroll-behavior: contain; /* Prevent scroll chaining to parent */
-    /* Account for mobile browser bottom bars - use larger fallback */
-    padding-bottom: max(120px, env(safe-area-inset-bottom, 120px));
-    /* Additional padding for different mobile browser scenarios */
-    padding-bottom: max(120px, calc(env(safe-area-inset-bottom, 0px) + 60px));
+    /* Account for mobile browser safe areas */
+    padding-bottom: max(60px, env(safe-area-inset-bottom, 60px));
   }
 
   .market-coverage-v2 .sidebar.open {
@@ -1340,8 +1341,10 @@
     left: 0;
     width: 100%;
     height: 100%;
+    height: 100dvh; /* Use dynamic viewport height */
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    backdrop-filter: blur(2px);
+    z-index: 10002; /* Just below sidebar, but above mobile navigation */
     display: none;
     /* Prevent scrolling on background */
     overflow: hidden;
