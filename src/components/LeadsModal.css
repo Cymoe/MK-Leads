@@ -363,7 +363,7 @@
     padding-bottom: max(8px, env(safe-area-inset-bottom));
     /* Ensure modal doesn't interfere with navigation */
     align-items: flex-start;
-    padding-top: 60px; /* Account for mobile navigation */
+    padding-top: 80px; /* Increased from 60px to account for mobile top bar */
   }
 
   .leads-modal {

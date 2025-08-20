@@ -257,6 +257,16 @@ function Navigation({ session }) {
         >
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
+        
+        {/* Mobile action buttons - only show on Markets page */}
+        {session && showActionButtons && (
+          <div className="mobile-action-buttons">
+            <button className="mobile-action-btn" onClick={handleAddMarket} title="Add Market">
+              <Plus size={18} />
+            </button>
+          </div>
+        )}
+        
         <div className="mobile-user-dropdown">
           {userDropdown}
         </div>
