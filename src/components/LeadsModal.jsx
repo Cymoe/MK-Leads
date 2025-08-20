@@ -259,7 +259,15 @@ function LeadsModal({ isOpen, onClose, filters }) {
                     {lead.website && (
                       <div className="info-item">
                         <Globe size={14} />
-                        <span>{lead.website}</span>
+                        <a 
+                          href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="website-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {lead.website}
+                        </a>
                       </div>
                     )}
                     
@@ -312,7 +320,12 @@ function LeadsModal({ isOpen, onClose, filters }) {
                     {selectedLead.website && (
                       <div className="detail-item">
                         <strong>Website:</strong> 
-                        <a href={selectedLead.website} target="_blank" rel="noopener noreferrer">
+                        <a 
+                          href={selectedLead.website.startsWith('http') ? selectedLead.website : `https://${selectedLead.website}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="website-link"
+                        >
                           {selectedLead.website}
                         </a>
                       </div>

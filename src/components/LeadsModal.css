@@ -252,6 +252,26 @@
   flex: 1;
 }
 
+/* Website Links */
+.website-link {
+  color: var(--color-professional-blue);
+  text-decoration: none;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  flex: 1;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.website-link:hover {
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.1);
+  text-decoration: underline;
+}
+
 /* Lead Details Modal */
 .lead-details-overlay {
   position: fixed;

@@ -1291,13 +1291,12 @@
     position: fixed;
     top: 0; /* Position at absolute top */
     left: -100%;
-    width: 85%;
-    max-width: 320px;
+    width: 100%; /* Full screen width */
     height: 100vh; /* Full height */
     height: 100dvh; /* Use dynamic viewport height for better mobile support */
     z-index: 10003; /* Higher than mobile navigation (10002) */
     transition: left 0.3s ease;
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    box-shadow: none; /* No shadow needed for full screen */
     overflow-y: hidden; /* Prevent outer scroll, let states-list handle it */
     /* Ensure sidebar covers everything */
     background: var(--bg-medium);
