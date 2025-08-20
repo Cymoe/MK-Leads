@@ -26,6 +26,7 @@ SELECT
     mc.coverage_percentage,
     mc.population,
     mc.metro_population,
+    mc.metro_name,
     mc.actual_service_types as service_types,
     mc.created_at,
     mc.updated_at,

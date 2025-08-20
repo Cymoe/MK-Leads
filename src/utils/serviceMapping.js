@@ -24,7 +24,11 @@ export const serviceTypeMapping = {
   'Tile & Stone': ['Tile contractor', 'Stone contractor', 'Tile installer'],
   'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving'],
   'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company'],
-  'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer']
+  'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer'],
+  'Restoration Services': ['Restoration service', 'Water damage restoration', 'Fire damage restoration', 'Damage restoration', 'Restoration company', 'Restoration Services'],
+  'Foundation Repair': ['Foundation repair', 'Foundation contractor', 'Foundation specialist', 'Structural repair', 'Foundation Repair'],
+  'Pest Control': ['Pest control service', 'Exterminator', 'Pest control company', 'Pest management', 'Pest Control'],
+  'Basement Waterproofing': ['Basement waterproofing', 'Waterproofing contractor', 'Foundation waterproofing', 'Basement repair', 'Basement Waterproofing']
 }
 
 // Get all possible service types for a UI service name

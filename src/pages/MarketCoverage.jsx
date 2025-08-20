@@ -319,6 +319,7 @@ function MarketCoverage({ session }) {
           coverage: market.coverage_percentage || 0,
           population: market.population || null,
           metroPopulation: market.metro_population || null,
+          metro_name: market.metro_name || null,
           services: market.service_types || []
         })
         
@@ -352,6 +353,7 @@ function MarketCoverage({ session }) {
           coverage: 0,
           population: null,
           metroPopulation: null,
+          metro_name: null,
           services: []
         })
         
@@ -471,6 +473,11 @@ function MarketCoverage({ session }) {
     { name: 'Paving & Asphalt', category: 'established' },
     { name: 'Custom Home Builders', category: 'established' },
     { name: 'Flooring Contractors', category: 'established' },
+    // High-Impact Services (NEW)
+    { name: 'Restoration Services', category: 'established' },
+    { name: 'Foundation Repair', category: 'established' },
+    { name: 'Pest Control', category: 'established' },
+    { name: 'Basement Waterproofing', category: 'established' },
     // Emerging Services
     { name: 'EV Charging Installation', category: 'emerging', growthRate: '27.11%', marketSize: '$32.12B by 2030' },
     { name: 'Artificial Turf Installation', category: 'emerging', growthRate: '19.7%', marketSize: '$4.88B by 2031' },
@@ -487,10 +494,11 @@ function MarketCoverage({ session }) {
     south: {
       high: ['Tree Services', 'Fence Contractors', 'Landscaping Design', 'Concrete Contractors', 
              'Painting Companies', 'Roofing Contractors', 'Pool Builders', 'Outdoor Kitchen',
-             'Outdoor Living Structures', 'Smart Home Installation'],
+             'Outdoor Living Structures', 'Smart Home Installation', 'Restoration Services',
+             'Pest Control', 'Foundation Repair'],
       medium: ['Window & Door', 'Kitchen Remodeling', 'Bathroom Remodeling', 'Whole Home Remodel',
                'Hardscape Contractors', 'Solar Installers', 'Artificial Turf Installation', 
-               'Water Features Installation', 'EV Charging Installation'],
+               'Water Features Installation', 'EV Charging Installation', 'Basement Waterproofing'],
       low: ['Deck Builders', 'Smart Home', 'Epoxy Flooring', 'Garage Door Services', 
             'Cabinet Makers', 'Tile & Stone', 'Paving & Asphalt', 'Custom Home Builders', 
             'Flooring Contractors', 'Custom Lighting Design']
@@ -498,41 +506,44 @@ function MarketCoverage({ session }) {
     west: {
       high: ['Solar Installers', 'Painting Companies', 'Landscaping Design', 'Smart Home Installation',
              'Pool Builders', 'Artificial Turf Installation', 'EV Charging Installation',
-             'Outdoor Living Structures', 'Custom Lighting Design'],
+             'Outdoor Living Structures', 'Custom Lighting Design', 'Restoration Services',
+             'Foundation Repair', 'Pest Control'],
       medium: ['Concrete Contractors', 'Fence Contractors', 'Window & Door', 'Roofing Contractors',
                'Kitchen Remodeling', 'Bathroom Remodeling', 'Water Features Installation',
-               'Outdoor Kitchen Installation'],
+               'Outdoor Kitchen Installation', 'Basement Waterproofing'],
       low: ['Tree Services', 'Deck Builders', 'Whole Home Remodel', 'Home Addition',
             'Exterior Contractors', 'Hardscape Contractors', 'Turf Installers']
     },
     northeast: {
       high: ['Kitchen Remodeling', 'Bathroom Remodeling', 'Window & Door', 'Painting Companies',
-             'Smart Home Installation', 'Roofing Contractors', 'EV Charging Installation'],
+             'Smart Home Installation', 'Roofing Contractors', 'EV Charging Installation',
+             'Restoration Services', 'Foundation Repair', 'Basement Waterproofing'],
       medium: ['Whole Home Remodel', 'Flooring Contractors', 'Cabinet Makers', 'Tile & Stone',
-               'Deck Builders', 'Fence Contractors', 'Custom Lighting Design'],
+               'Deck Builders', 'Fence Contractors', 'Custom Lighting Design', 'Pest Control'],
       low: ['Pool Builders', 'Solar Installers', 'Outdoor Kitchen', 'Artificial Turf Installation',
             'Water Features Installation', 'Outdoor Living Structures', 'Palapa/Tropical Structures']
     },
     midwest: {
       high: ['Concrete Contractors', 'Fence Contractors', 'Garage Door Services', 'Window & Door',
-             'Roofing Contractors'],
+             'Roofing Contractors', 'Foundation Repair', 'Basement Waterproofing', 'Restoration Services'],
       medium: ['Kitchen Remodeling', 'Painting Companies', 'Smart Home Installation', 
-               'EV Charging Installation', 'Bathroom Remodeling'],
+               'EV Charging Installation', 'Bathroom Remodeling', 'Pest Control'],
       low: ['Pool Builders', 'Solar Installers', 'Outdoor Kitchen', 'Artificial Turf Installation',
             'Water Features Installation', 'Outdoor Living Structures', 'Palapa/Tropical Structures']
     },
     pacificNorthwest: {
       high: ['Deck Builders', 'Roofing Contractors', 'Window & Door', 'Smart Home Installation',
-             'Tree Services', 'EV Charging Installation'],
+             'Tree Services', 'EV Charging Installation', 'Foundation Repair', 'Basement Waterproofing'],
       medium: ['Kitchen Remodeling', 'Whole Home Remodel', 'Fence Contractors', 'Concrete Contractors',
-               'Custom Lighting Design', 'Painting Companies'],
+               'Custom Lighting Design', 'Painting Companies', 'Restoration Services', 'Pest Control'],
       low: ['Pool Builders', 'Solar Installers', 'Turf Installers', 'Artificial Turf Installation',
             'Outdoor Kitchen', 'Water Features Installation', 'Palapa/Tropical Structures']
     },
     mountain: {
-      high: ['Roofing Contractors', 'Window & Door', 'Concrete Contractors', 'Garage Door Services'],
+      high: ['Roofing Contractors', 'Window & Door', 'Concrete Contractors', 'Garage Door Services',
+             'Foundation Repair', 'Restoration Services'],
       medium: ['Kitchen Remodeling', 'Smart Home Installation', 'Fence Contractors', 
-               'EV Charging Installation', 'Painting Companies'],
+               'EV Charging Installation', 'Painting Companies', 'Basement Waterproofing', 'Pest Control'],
       low: ['Pool Builders', 'Outdoor Kitchen', 'Artificial Turf Installation', 
             'Water Features Installation', 'Outdoor Living Structures', 'Palapa/Tropical Structures']
     }
@@ -900,7 +911,9 @@ function MarketCoverage({ session }) {
                 {selectedMarket.metroPopulation && (
                   <div className="stat">
                     <span className="stat-value">{(selectedMarket.metroPopulation / 1000000).toFixed(1)}M</span>
-                    <span className="stat-label">Metro Pop</span>
+                    <span className="stat-label">
+                      {selectedMarket.metro_name ? selectedMarket.metro_name : 'Metro Pop'}
+                    </span>
                   </div>
                 )}
                 </div>

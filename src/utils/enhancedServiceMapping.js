@@ -1,7 +1,7 @@
 // Enhanced service mapping with expanded mappings and Other Services category
 // Based on analysis of CSV imports from Greenwich, Newark, and Naples
 
-// Complete list of 33 core UI services
+// Complete list of 37 core UI services (including 4 new high-impact services)
 export const coreUIServices = [
   'Deck Builders', 'Concrete Contractors', 'Window & Door', 'Roofing Contractors',
   'Tree Services', 'Solar Installers', 'Fence Contractors', 'Pool Builders',
@@ -12,7 +12,8 @@ export const coreUIServices = [
   'Custom Home Builders', 'Flooring Contractors', 'EV Charging Installation',
   'Artificial Turf Installation', 'Smart Home Installation', 'Outdoor Living Structures',
   'Custom Lighting Design', 'Water Features Installation', 'Outdoor Kitchen Installation',
-  'Palapa/Tropical Structures'
+  'Palapa/Tropical Structures', 'Restoration Services', 'Foundation Repair', 
+  'Pest Control', 'Basement Waterproofing'
 ]
 
 // Enhanced mapping with additional database variations found in CSV imports
@@ -149,6 +150,30 @@ export const enhancedServiceMapping = {
     'Carport and pergola builder', 'Pergola builder', 'Gazebo builder',
     'Patio cover installation', 'Shade structure', 'Outdoor structure builder',
     'Arbor installation', 'Pavilion builder'
+  ],
+  'Restoration Services': [
+    'Restoration service', 'Water damage restoration', 'Fire damage restoration', 
+    'Damage restoration', 'Restoration company', 'Restoration Services',
+    'Emergency restoration', 'Disaster restoration', 'Flood restoration',
+    'Storm damage restoration', 'Mold remediation', 'Smoke damage restoration'
+  ],
+  'Foundation Repair': [
+    'Foundation repair', 'Foundation contractor', 'Foundation specialist', 
+    'Structural repair', 'Foundation Repair', 'Basement repair',
+    'Crawl space repair', 'Foundation leveling', 'Slab repair',
+    'Foundation stabilization', 'Pier installation', 'Foundation waterproofing'
+  ],
+  'Pest Control': [
+    'Pest control service', 'Exterminator', 'Pest control company', 
+    'Pest management', 'Pest Control', 'Termite control',
+    'Rodent control', 'Bug extermination', 'Wildlife removal',
+    'Insect control', 'Mosquito control', 'Bee removal'
+  ],
+  'Basement Waterproofing': [
+    'Basement waterproofing', 'Waterproofing contractor', 'Foundation waterproofing', 
+    'Basement repair', 'Basement Waterproofing', 'Crawl space waterproofing',
+    'Basement sealing', 'Water damage prevention', 'Sump pump installation',
+    'French drain installation', 'Basement moisture control', 'Foundation drainage'
   ]
 }
 
@@ -173,11 +198,6 @@ export const otherHomeServices = {
     'Handyman', 'Handyperson', 'Home repair service', 'General repair',
     'Property maintenance', 'Home maintenance', 'Odd jobs',
     'Minor repairs', 'Handyman service'
-  ],
-  'Pest Control': [
-    'Pest control service', 'Exterminator', 'Termite control',
-    'Rodent control', 'Bug extermination', 'Wildlife removal',
-    'Pest management', 'Insect control'
   ],
   'Cleaning Services': [
     'House cleaning service', 'Maid service', 'Cleaning company',

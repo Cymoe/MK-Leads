@@ -642,6 +642,10 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
                       <option value="Solar Installers">Solar Installers</option>
                       <option value="Pool Builders">Pool Builders</option>
                       <option value="Outdoor Kitchen">Outdoor Kitchen</option>
+                      <option value="Restoration Services">Restoration Services</option>
+                      <option value="Foundation Repair">Foundation Repair</option>
+                      <option value="Pest Control">Pest Control</option>
+                      <option value="Basement Waterproofing">Basement Waterproofing</option>
                     </optgroup>
                     <optgroup label="Essential Services">
                       <option value="Concrete Contractors">Concrete Contractors</option>

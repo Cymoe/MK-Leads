@@ -64,7 +64,8 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
     marketType: 'MEDIUM', // Default classification
     canonicalCityId: null,
     population: null,
-    metroPopulation: null
+    metroPopulation: null,
+    metroName: null
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -80,6 +81,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
         canonicalCityId: null,
         population: null,
         metroPopulation: null,
+        metroName: null,
         marketType: 'MEDIUM' // Default for unknown cities
       })
     } else {
@@ -101,6 +103,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
         canonicalCityId: city.id,
         population: city.population,
         metroPopulation: city.metro_population,
+        metroName: city.metro_name,
         marketType: marketType
       })
     }
@@ -155,7 +158,8 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
             city_name: formData.city,
             state: formData.state,
             population: formData.population ? parseInt(formData.population) : null,
-            metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null
+            metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null,
+            metro_name: formData.metroName
           })
           .select()
           .single()
@@ -198,6 +202,7 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
           canonical_city_id: canonicalCityId,
           population: formData.population ? parseInt(formData.population) : null,
           metro_population: formData.metroPopulation ? parseInt(formData.metroPopulation) : null,
+          metro_name: formData.metroName,
           coverage_percentage: 0,
           phase_1_lead_count: 0,
           phase_2_lead_count: 0,
@@ -276,7 +281,8 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
       marketType: 'MEDIUM',
       canonicalCityId: null,
       population: null,
-      metroPopulation: null
+      metroPopulation: null,
+      metroName: null
     })
     setError(null)
     setIsCustomCity(false)
@@ -381,7 +387,8 @@ function AddMarketModal({ isOpen, onClose, onSuccess, getRegionForState }) {
                   canonicalCityId: null,
                   marketType: 'MEDIUM',
                   population: null,
-                  metroPopulation: null
+                  metroPopulation: null,
+                  metroName: null
                 })
                 setIsCustomCity(false)
               }}

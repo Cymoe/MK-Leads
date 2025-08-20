@@ -5,12 +5,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
   padding: 20px;
+  /* Prevent body scroll when modal is open */
+  overflow-y: auto;
 }
 
 .leads-modal {
@@ -354,19 +357,46 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .leads-modal-overlay {
-    padding: 10px;
+    padding: 8px;
+    /* Use safe area insets to avoid system UI */
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    /* Ensure modal doesn't interfere with navigation */
+    align-items: flex-start;
+    padding-top: 60px; /* Account for mobile navigation */
   }
 
   .leads-modal {
-    max-height: 95vh;
+    /* Use more conservative height on mobile */
+    max-height: calc(100vh - 120px);
+    min-height: 300px;
+    /* Ensure modal is positioned properly */
+    margin-top: 0;
   }
 
   .leads-modal-header {
     padding: 16px;
+    /* Ensure close button is always visible */
+    position: sticky;
+    top: 0;
+    background: #000000;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .modal-title h3 {
     font-size: 16px;
+    /* Prevent title from overlapping close button */
+    padding-right: 8px;
+  }
+
+  .modal-close-btn {
+    /* Make close button more prominent on mobile */
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .leads-modal-search {
@@ -393,15 +423,140 @@
     font-size: 13px;
   }
 
+  .view-details-btn {
+    /* Make view button easier to tap on mobile */
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Lead Details Modal Mobile Improvements */
   .lead-details-overlay {
-    padding: 10px;
+    padding: 8px;
+    /* Ensure details modal also respects navigation */
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+
+  .lead-details-modal {
+    max-height: calc(100vh - 120px);
+    width: 100%;
+    max-width: none;
   }
 
   .lead-details-header {
     padding: 16px;
+    /* Make header sticky so close button is always accessible */
+    position: sticky;
+    top: 0;
+    background: #000000;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .lead-details-header h3 {
+    font-size: 16px;
+    padding-right: 8px;
+  }
+
+  .lead-details-header button {
+    /* Make close button more prominent */
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .lead-details-content {
     padding: 16px;
+    /* Improve scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Extra small mobile devices and landscape phones */
+@media (max-width: 480px) {
+  .leads-modal-overlay {
+    padding: 4px;
+    padding-top: 50px; /* Reduced for smaller screens */
+  }
+
+  .leads-modal {
+    max-height: calc(100vh - 100px);
+    width: calc(100vw - 8px);
+  }
+
+  .leads-modal-header {
+    padding: 12px;
+  }
+
+  .modal-title h3 {
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .modal-subtitle {
+    font-size: 12px;
+  }
+
+  .modal-close-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .leads-modal-search {
+    padding: 0 12px 12px 12px;
+  }
+
+  .leads-list {
+    padding: 8px 12px 12px 12px;
+  }
+
+  .lead-card {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .business-name {
+    font-size: 14px;
+  }
+
+  .info-item {
+    font-size: 12px;
+  }
+
+  .view-details-btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 6px;
+  }
+
+  /* Details modal for small screens */
+  .lead-details-overlay {
+    padding: 4px;
+    padding-top: 50px;
+  }
+
+  .lead-details-modal {
+    max-height: calc(100vh - 100px);
+    width: calc(100vw - 8px);
+  }
+
+  .lead-details-header {
+    padding: 12px;
+  }
+
+  .lead-details-header h3 {
+    font-size: 15px;
+  }
+
+  .lead-details-header button {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .lead-details-content {
+    padding: 12px;
   }
 }

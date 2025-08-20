@@ -31,6 +31,21 @@ function LeadsModal({ isOpen, onClose, filters }) {
     }
   }, [isOpen, filters])
 
+  // Prevent body scroll when modal is open (mobile fix)
+  useEffect(() => {
+    if (isOpen) {
+      // Store original body overflow
+      const originalStyle = window.getComputedStyle(document.body).overflow
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+      
+      return () => {
+        // Restore original body overflow
+        document.body.style.overflow = originalStyle
+      }
+    }
+  }, [isOpen])
+
   const fetchLeads = async () => {
     try {
       setLoading(true)
@@ -91,7 +106,11 @@ function LeadsModal({ isOpen, onClose, filters }) {
           'Paving & Asphalt': ['Paving contractor', 'Asphalt contractor', 'Driveway paving'],
           'Custom Home Builders': ['Custom home builder', 'Home builder', 'Residential builder', 'Construction company'],
           'Flooring Contractors': ['Flooring contractor', 'Floor installation', 'Carpet installer'],
-          'Artificial Turf Installation': ['Turf supplier', 'Turf installation', 'Synthetic grass installation', 'Artificial grass installer', 'Artificial Turf Installation']
+          'Artificial Turf Installation': ['Turf supplier', 'Turf installation', 'Synthetic grass installation', 'Artificial grass installer', 'Artificial Turf Installation'],
+          'Restoration Services': ['Restoration service', 'Water damage restoration', 'Fire damage restoration', 'Damage restoration', 'Restoration company', 'Restoration Services'],
+          'Foundation Repair': ['Foundation repair', 'Foundation contractor', 'Foundation specialist', 'Structural repair', 'Foundation Repair'],
+          'Pest Control': ['Pest control service', 'Exterminator', 'Pest control company', 'Pest management', 'Pest Control'],
+          'Basement Waterproofing': ['Basement waterproofing', 'Waterproofing contractor', 'Foundation waterproofing', 'Basement repair', 'Basement Waterproofing']
         }
         
         const mappedTypes = serviceMapping[filters.serviceType] || [filters.serviceType]

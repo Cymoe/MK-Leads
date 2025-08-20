@@ -286,6 +286,34 @@ function ServiceSearchModal({
         'thatch roof',            // Feature search
         'tropical structures',    // Category
         'shade structure'         // General category
+      ],
+      'Restoration Services': [
+        'restoration services',   // Broadest category
+        'water damage restoration', // Most common type
+        'fire damage restoration', // Another common type
+        'restoration company',    // Business identifier
+        'emergency restoration'   // Service type
+      ],
+      'Foundation Repair': [
+        'foundation repair',      // Direct search
+        'foundation contractors', // Professional category
+        'foundation',            // Broadest search
+        'structural repair',     // Related service
+        'basement repair'        // Often combined
+      ],
+      'Pest Control': [
+        'pest control',          // Direct search
+        'exterminator',         // Common term
+        'pest control services', // Service category
+        'termite control',      // Specific service
+        'pest management'       // Professional term
+      ],
+      'Basement Waterproofing': [
+        'basement waterproofing', // Direct search
+        'waterproofing contractors', // Professional category
+        'basement repair',       // Related service
+        'foundation waterproofing', // Combined service
+        'crawl space waterproofing' // Related service
       ]
     }
     
