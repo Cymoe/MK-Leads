@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { TrendingUp, Users, Target, Calendar } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import BlueOceanInsights from './BlueOceanInsights'
 import './LeadGenDashboard.css'
 
 function LeadGenDashboard({ session }) {
@@ -78,81 +79,71 @@ function LeadGenDashboard({ session }) {
         return
       }
       
-      // Get user's markets first to filter leads properly (with timeout)
-      const marketsPromise = supabase.from('markets').select('id')
-      const marketsTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Markets query timeout')), 5000)
-      )
+      console.log('Dashboard - Current user ID:', user.id)
       
-      const { data: userMarkets, error: marketsError } = await Promise.race([
-        marketsPromise,
-        marketsTimeoutPromise
-      ])
+      // TEMPORARY: Show all leads regardless of user/market association
+      // This is to debug the data issue
       
-      if (marketsError) {
-        console.error('Error loading markets:', marketsError)
-        // Set default stats instead of failing
-        setStats({
-          totalLeads: 0,
-          newThisWeek: 0,
-          conversionRate: 0,
-          activeMarkets: 0
-        })
-        return
-      }
-      
-      const marketIds = userMarkets?.map(m => m.id) || []
-      
-      if (marketIds.length === 0) {
-        setStats({
-          totalLeads: 0,
-          newThisWeek: 0,
-          conversionRate: 0,
-          activeMarkets: 0
-        })
-        return
-      }
-      
-      // Get total leads count for user's markets
-      const { count: totalLeads } = await supabase
+      // Get total leads count (all leads in database)
+      const { count: totalLeads, error: leadsError } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
-        .in('market_id', marketIds)
+      
+      if (leadsError) {
+        console.error('Error counting leads:', leadsError)
+      }
+      
+      console.log('Total leads in database:', totalLeads)
 
-      // Get leads from this week for user's markets
+      // Get leads from this week (all leads)
       const oneWeekAgo = new Date()
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
       
       const { count: newThisWeek } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
-        .in('market_id', marketIds)
         .gte('created_at', oneWeekAgo.toISOString())
 
-      // Get active markets count (markets with leads)
-      const { data: marketsWithLeads } = await supabase
-        .from('leads')
-        .select('market_id')
-        .in('market_id', marketIds)
-        .not('market_id', 'is', null)
-
-      const uniqueActiveMarkets = new Set(marketsWithLeads?.map(lead => lead.market_id) || [])
+      // Get active markets count using RPC or fallback
+      const { data: marketCountData, error: marketCountError } = await supabase
+        .rpc('get_unique_cities_count')
+      
+      let uniqueActiveMarkets = 0
+      
+      if (marketCountError || !marketCountData) {
+        // Fallback: Get all cities to count them
+        const { data: allCities } = await supabase
+          .from('leads')
+          .select('city, state')
+          .not('city', 'is', null)
+        
+        const uniqueCitySet = new Set(allCities?.map(lead => `${lead.city}, ${lead.state}`) || [])
+        uniqueActiveMarkets = uniqueCitySet.size
+        console.log('Active markets (fallback):', uniqueActiveMarkets)
+      } else {
+        uniqueActiveMarkets = marketCountData
+        console.log('Active markets (RPC):', uniqueActiveMarkets)
+      }
       
       // Calculate basic conversion rate (leads with email/phone vs total)
-      const { data: leadsWithContact } = await supabase
+      const { count: leadsWithPhone } = await supabase
         .from('leads')
-        .select('id')
-        .in('market_id', marketIds)
-        .or('email.neq.,phone.neq.')
+        .select('*', { count: 'exact', head: true })
+        .not('phone', 'is', null)
+      
+      // Use leads with phone as the metric since most have phone
+      const leadsWithContact = leadsWithPhone || 0
+      
+      console.log('Leads with contact:', leadsWithContact, 'Total leads:', totalLeads)
       
       const conversionRate = totalLeads > 0 ? 
-        Math.round(((leadsWithContact?.length || 0) / totalLeads) * 100) : 0
+        Math.round((leadsWithContact / totalLeads) * 100) : 0
       
       setStats({
         totalLeads: totalLeads || 0,
         newThisWeek: newThisWeek || 0,
         conversionRate: conversionRate,
-        activeMarkets: uniqueActiveMarkets.size
+        activeMarkets: uniqueActiveMarkets
       })
     } catch (error) {
       console.error('Error loading dashboard stats:', error)
@@ -169,51 +160,46 @@ function LeadGenDashboard({ session }) {
 
   const loadRecentActivity = async () => {
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Get user's markets
-      const { data: userMarkets } = await supabase
-        .from('markets')
-        .select('id, name, state')
-      
-      const marketIds = userMarkets?.map(m => m.id) || []
-      if (marketIds.length === 0) return
-
-      // Get recent leads (last 7 days) with market info
+      // Get recent leads (last 7 days) - showing all leads
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
       const { data: recentLeads } = await supabase
         .from('leads')
         .select('created_at, market_id, city, state')
-        .in('market_id', marketIds)
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(1000)  // Get more leads
 
-      // Group by day and market
+      // Group by day and market more accurately
       const activityMap = new Map()
       
       recentLeads?.forEach(lead => {
-        const date = new Date(lead.created_at).toDateString()
-        const market = userMarkets?.find(m => m.id === lead.market_id)
-        const key = `${date}-${lead.market_id}`
+        // Use local date to avoid timezone issues
+        const leadDate = new Date(lead.created_at)
+        const dateKey = leadDate.toLocaleDateString()
+        const marketLocation = `${lead.city}, ${lead.state}`
+        const key = `${dateKey}-${marketLocation}`
         
         if (activityMap.has(key)) {
           activityMap.get(key).count++
         } else {
           activityMap.set(key, {
             date: lead.created_at,
-            market: market ? `${market.name}, ${market.state}` : `${lead.city}, ${lead.state}`,
-            count: 1
+            market: marketLocation,
+            count: 1,
+            dateKey: dateKey
           })
         }
       })
 
+      // Sort by date and count, show top activities
       const activity = Array.from(activityMap.values())
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a, b) => {
+          const dateCompare = new Date(b.date) - new Date(a.date)
+          if (dateCompare !== 0) return dateCompare
+          return b.count - a.count  // Secondary sort by count
+        })
         .slice(0, 5)
 
       setRecentActivity(activity)
@@ -224,31 +210,41 @@ function LeadGenDashboard({ session }) {
 
   const loadTopMarkets = async () => {
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Get markets with lead counts
-      const { data: marketsWithCounts } = await supabase
-        .from('markets')
-        .select(`
-          id,
-          name,
-          state,
-          leads:leads(count)
-        `)
-        .order('name')
-
-      const topMarkets = marketsWithCounts
-        ?.map(market => ({
-          name: `${market.name}, ${market.state}`,
-          count: market.leads?.[0]?.count || 0
-        }))
-        .filter(market => market.count > 0)
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5) || []
-
-      setTopMarkets(topMarkets)
+      // Get lead counts grouped by city/state
+      const { data: leadCounts, error } = await supabase
+        .rpc('get_lead_counts_by_city')
+      
+      if (error) {
+        console.error('RPC error, using fallback:', error)
+        // Fallback: manually group leads
+        const { data: allLeads } = await supabase
+          .from('leads')
+          .select('city, state')
+        
+        const cityCountMap = new Map()
+        allLeads?.forEach(lead => {
+          const key = `${lead.city}, ${lead.state}`
+          cityCountMap.set(key, (cityCountMap.get(key) || 0) + 1)
+        })
+        
+        const topMarkets = Array.from(cityCountMap.entries())
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5)
+        
+        setTopMarkets(topMarkets)
+      } else {
+        // Use RPC results
+        const topMarkets = leadCounts
+          ?.map(item => ({
+            name: `${item.city}, ${item.state}`,
+            count: item.lead_count || 0
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5) || []
+        
+        setTopMarkets(topMarkets)
+      }
     } catch (error) {
       console.error('Error loading top markets:', error)
     }
@@ -360,6 +356,9 @@ function LeadGenDashboard({ session }) {
           </div>
         </div>
       </div>
+
+      {/* Blue Ocean Insights */}
+      <BlueOceanInsights />
     </div>
   )
 }

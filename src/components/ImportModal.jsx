@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Upload, Database, Calendar, AlertCircle, Loader, Bot } from 'lucide-react'
+import { X, Database, AlertCircle, Loader, Bot } from 'lucide-react'
 import ApifyService from '../services/apify'
 import { supabase } from '../lib/supabase'
 import { filterServiceBusinesses } from '../utils/leadFiltering'
@@ -8,7 +8,6 @@ import { globalToast } from '../hooks/useToast'
 import './ImportModal.css'
 
 function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
-  const [activeTab, setActiveTab] = useState('manual')
   const [selectedRuns, setSelectedRuns] = useState([])
   const toast = globalToast
   const [apifyToken, setApifyToken] = useState(import.meta.env.VITE_APIFY_API_TOKEN || '')
@@ -536,27 +535,8 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
             <X size={20} />
           </button>
         </div>
-
-        <div className="modal-tabs">
-          <button 
-            className={`tab ${activeTab === 'manual' ? 'active' : ''}`}
-            onClick={() => setActiveTab('manual')}
-          >
-            <Database size={16} />
-            Manual Import
-          </button>
-          <button 
-            className={`tab ${activeTab === 'automatic' ? 'active' : ''}`}
-            onClick={() => setActiveTab('automatic')}
-          >
-            <Upload size={16} />
-            Automatic Sync
-          </button>
-        </div>
-
         <div className="modal-body">
-          {activeTab === 'manual' ? (
-            <div className="import-manual">
+          <div className="import-manual">
               <div className="import-section">
                 <h3>Apify Configuration</h3>
                 <p className="section-description">
@@ -729,53 +709,6 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
               </div>
 
             </div>
-          ) : (
-            <div className="import-automatic">
-              <div className="import-section">
-                <h3>Configure Automatic Sync</h3>
-                <p className="section-description">
-                  Set up automatic synchronization with your Apify actors
-                </p>
-                
-                <div className="form-group">
-                  <label htmlFor="apify-token">Apify API Token</label>
-                  <input
-                    id="apify-token"
-                    type="password"
-                    className="input"
-                    placeholder="Enter your Apify API token"
-                    value={apifyToken}
-                    onChange={(e) => setApifyToken(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="actor-id">Actor ID</label>
-                  <input
-                    id="actor-id"
-                    type="text"
-                    className="input"
-                    placeholder="e.g., apify/google-maps-scraper"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="schedule">Sync Schedule</label>
-                  <select id="schedule" className="input">
-                    <option>Every hour</option>
-                    <option>Every 6 hours</option>
-                    <option>Daily</option>
-                    <option>Weekly</option>
-                  </select>
-                </div>
-
-                <div className="sync-info">
-                  <AlertCircle size={16} />
-                  <span>Automatic sync will run in the background and update your leads database</span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="modal-footer">
@@ -785,7 +718,7 @@ function ImportModal({ isOpen, onClose, selectedMarket, onImportComplete }) {
           <button 
             className="btn btn-primary" 
             onClick={handleImport}
-            disabled={loading || (activeTab === 'manual' && selectedRuns.length === 0 && !manualRunId) || !selectedMarket}
+            disabled={loading || (selectedRuns.length === 0 && !manualRunId) || !selectedMarket}
           >
             {loading ? (
               <>

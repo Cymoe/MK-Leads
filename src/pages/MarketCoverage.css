@@ -1,7 +1,7 @@
 /* CSS Variables for Theme System */
 :root {
   /* Dark Theme (Default) */
-  --bg-primary: #000000;
+  --bg-primary: var(--page-bg);
   --bg-secondary: rgba(30, 41, 59, 0.6);
   --bg-secondary-hover: rgba(30, 41, 59, 0.8);
   --bg-sidebar: #1f2937;
@@ -33,7 +33,7 @@
 .market-coverage-v2 {
   display: flex;
   height: 100vh;
-  background: #000000;
+  background: var(--page-bg);
   position: relative;
 }
 
@@ -98,7 +98,7 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  background: #000000;
+  background: var(--page-bg);
 }
 
 /* Header - Inside main content */
@@ -107,7 +107,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 32px;
-  background: #000000;
+  background: var(--page-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
@@ -188,7 +188,7 @@
 /* Sidebar - Full Height from absolute top */
 .market-coverage-v2 .sidebar {
   width: 320px;
-  background: #000000;
+  background: var(--page-bg);
   border-right: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   flex-direction: column;
@@ -206,7 +206,7 @@
   flex: 1;
   overflow: hidden;
   height: 100vh;
-  background: #000000;
+  background: var(--page-bg);
 }
 
 .sidebar-header {
@@ -430,12 +430,12 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background: #000000;
+  background: var(--page-bg);
 }
 
 .market-header {
   padding: 24px 32px;
-  background: #000000;
+  background: var(--page-bg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   position: sticky;
   top: 0;
@@ -573,7 +573,7 @@
   display: flex;
   gap: 0;
   padding: 0 32px;
-  background: #000000;
+  background: var(--page-bg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   position: sticky;
   top: 140px; /* Position below the normal header */
@@ -1372,7 +1372,7 @@
     top: 0;
     z-index: 50;
     backdrop-filter: blur(10px);
-    background: #000000;
+    background: var(--page-bg);
     transition: all 0.3s ease;
   }
 
@@ -1441,7 +1441,7 @@
     top: 120px; /* Position below the normal mobile header */
     z-index: 40;
     backdrop-filter: blur(10px);
-    background: #000000;
+    background: var(--page-bg);
     transition: top 0.3s ease; /* Smooth transition when header condenses */
   }
 

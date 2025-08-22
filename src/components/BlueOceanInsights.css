@@ -1,0 +1,285 @@
+.blue-ocean-insights {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+  border: 1px solid #334155;
+}
+
+.blue-ocean-insights.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #334155;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.insights-header {
+  margin-bottom: 24px;
+}
+
+.insights-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 8px 0;
+}
+
+.insights-header p {
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Market Overview */
+.market-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.market-overview .stat-card {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  text-align: center;
+}
+
+.market-overview .stat-card.alert {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b18 100%);
+}
+
+.market-overview .stat-value {
+  display: block;
+  font-size: 32px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.market-overview .stat-label {
+  display: block;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* Opportunities Section */
+.opportunities-section {
+  margin-bottom: 32px;
+}
+
+.opportunities-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 16px 0;
+}
+
+.opportunities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opportunity-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.opportunity-card:hover {
+  border-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.opportunity-rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 35px;
+}
+
+.opportunity-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.opportunity-details {
+  flex: 1;
+}
+
+.opportunity-service {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.opportunity-market {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.opportunity-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.growth-rate {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.opportunity-score {
+  text-align: center;
+  padding: 12px 20px;
+  background: #1e293b;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+
+.score-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.score-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* Regional Gaps */
+.regional-gaps-section {
+  margin-bottom: 32px;
+}
+
+.regional-gaps-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 16px 0;
+}
+
+.gaps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.gap-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.gap-region {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.gap-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.gap-services {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #f59e0b;
+}
+
+.gap-services svg {
+  flex-shrink: 0;
+}
+
+/* Recommendations */
+.recommendations-section {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.recommendations-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 16px 0;
+}
+
+.recommendations-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.recommendations-section li {
+  color: #cbd5e1;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.recommendations-section strong {
+  color: #f1f5f9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .market-overview {
+    grid-template-columns: 1fr;
+  }
+  
+  .opportunity-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .opportunity-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .opportunity-score {
+    width: 100%;
+  }
+}

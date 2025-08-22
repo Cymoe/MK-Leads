@@ -27,7 +27,7 @@ function MarketCoverage({ session }) {
   const [showServiceSearchModal, setShowServiceSearchModal] = useState(false)
   const [servicesToSearch, setServicesToSearch] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [customPriorities, setCustomPriorities] = useState(null)
+
   const [selectionMode, setSelectionMode] = useState('individual') // 'individual' or 'batch'
   const [isHeaderCondensed, setIsHeaderCondensed] = useState(false)
   const [enhancedCoverage, setEnhancedCoverage] = useState(null)
@@ -117,7 +117,6 @@ function MarketCoverage({ session }) {
 
   useEffect(() => {
     fetchMarkets()
-    loadCustomPriorities()
   }, [])
 
   // Restore market selection from URL when markets are loaded
@@ -170,6 +169,23 @@ function MarketCoverage({ session }) {
     }
   }, [])
 
+  // Open modals based on URL action param (supports global nav buttons from any page)
+  useEffect(() => {
+    const action = searchParams.get('action')
+    if (!action) return
+
+    if (action === 'add-market') {
+      setShowAddMarketModal(true)
+    } else if (action === 'import-leads') {
+      setShowImportModal(true)
+    }
+
+    // Clear the action param from the URL after handling
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete('action')
+    setSearchParams(newParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
   // Listen for scroll events to condense header
   useEffect(() => {
     const handleScroll = () => {
@@ -195,27 +211,7 @@ function MarketCoverage({ session }) {
     }
   }, [selectedMarket])
 
-  const loadCustomPriorities = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('service_type_priorities')
-        .select('*')
-        .order('priority', { ascending: false })
-      
-      if (error) throw error
-      
-      if (data && data.length > 0) {
-        // Convert to a map for easy lookup
-        const priorityMap = {}
-        data.forEach((item, index) => {
-          priorityMap[item.service_type] = index + 1 // 1-based priority
-        })
-        setCustomPriorities(priorityMap)
-      }
-    } catch (error) {
-      console.error('Error loading custom priorities:', error)
-    }
-  }
+
 
   const fetchMarkets = async () => {
     console.log('fetchMarkets called')
@@ -227,9 +223,9 @@ function MarketCoverage({ session }) {
       const { data: { user } } = await supabase.auth.getUser()
       console.log('Current user ID:', user?.id)
       
-      // Fetch markets from the public_markets view (temporary for testing)
+      // Fetch markets from the markets view
       const { data: marketsData, error: marketsError } = await supabase
-        .from('public_markets')
+        .from('markets')
         .select('*')
       
       if (marketsError) throw marketsError
@@ -600,31 +596,6 @@ function MarketCoverage({ session }) {
 
   const getRecommendedServices = () => {
     if (!selectedMarket) return []
-    
-    // If we have custom priorities, use those
-    if (customPriorities) {
-      return allServices
-        .filter(service => {
-          // Check if this is a regional-only service
-          if (regionalOnlyServices[service.name] && 
-              !regionalOnlyServices[service.name].includes(selectedMarket.state)) {
-            return false // Don't show this service in this state
-          }
-          return true
-        })
-        .sort((a, b) => {
-          const aPriority = customPriorities[a.name] || 999
-          const bPriority = customPriorities[b.name] || 999
-          return aPriority - bPriority
-        })
-        .map(service => ({
-          ...service,
-          priority: customPriorities[service.name] ? 
-            (customPriorities[service.name] <= 8 ? 'high' : 
-             customPriorities[service.name] <= 16 ? 'medium' : 'low') : 'low',
-          region: getRegionForState(selectedMarket.state)
-        }))
-    }
     
     // Otherwise, use regional priorities
     const region = getRegionForState(selectedMarket.state)

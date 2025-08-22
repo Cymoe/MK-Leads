@@ -2,6 +2,8 @@
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+  background-color: var(--page-bg);
+  min-height: calc(100vh - 56px);
 }
 
 .dashboard-header {
@@ -26,8 +28,8 @@
 }
 
 .stat-card {
-  background-color: var(--bg-medium);
-  border: 1px solid var(--bg-light);
+  background-color: var(--surface-bg);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
   padding: 20px;
 }
@@ -70,10 +72,11 @@
 }
 
 .dashboard-section {
-  background-color: var(--bg-medium);
-  border: 1px solid var(--bg-light);
+  background-color: var(--surface-bg);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
   padding: 20px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
 }
 
 .section-header {
@@ -113,7 +116,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background-color: var(--bg-dark);
+  background-color: var(--surface-bg);
   border-radius: 6px;
 }
 
@@ -193,7 +196,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background-color: var(--bg-dark);
+  background-color: var(--surface-bg);
   border-radius: 6px;
 }
 

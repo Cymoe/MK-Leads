@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { getAppUrl } from '../config/environment'
 import { Loader } from 'lucide-react'
 import './Auth.css'
 
 function Auth() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [oauthUrl, setOauthUrl] = useState('')
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
@@ -15,7 +17,16 @@ function Auth() {
       console.log('Initiating Google OAuth...')
       
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google'
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          },
+          redirectTo: getAppUrl(),
+          skipBrowserRedirect: true,
+          flowType: 'pkce'
+        }
       })
       
       if (error) {
@@ -24,7 +35,14 @@ function Auth() {
       }
       
       console.log('OAuth URL generated:', data.url)
-      // Browser will redirect automatically
+      if (data?.url) {
+        setOauthUrl(data.url)
+        // Use robust navigation for desktop browsers
+        try { window.location.assign(data.url) } catch (_) {}
+        // Fallbacks in case navigation is blocked
+        setTimeout(() => { try { window.location.href = data.url } catch (_) {} }, 150)
+        setTimeout(() => { try { window.open(data.url, '_self') } catch (_) {} }, 400)
+      }
       
     } catch (error) {
       console.error('Google Sign In error:', error)
@@ -67,6 +85,14 @@ function Auth() {
             </>
           )}
         </button>
+
+        {oauthUrl && (
+          <div style={{ marginTop: '12px' }}>
+            <a href={oauthUrl} style={{ color: '#60a5fa', textDecoration: 'underline' }}>
+              If nothing happens, click here to continue to Google
+            </a>
+          </div>
+        )}
 
         {error && (
           <div className="auth-error">

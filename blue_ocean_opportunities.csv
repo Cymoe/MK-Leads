@@ -1,0 +1,91 @@
+Market,State,Service,Growth Rate,Service Leads,Market Total,Coverage %,Opportunity Level,Score
+"Newark, NJ",NJ,"EV Charging Installation",27.11,0,276,0.00,NO_PRESENCE,7482.36
+"Naples, FL",FL,"EV Charging Installation",27.11,0,270,0.00,NO_PRESENCE,7319.70
+"Newark, NJ",NJ,"Smart Home Installation",23.4,0,276,0.00,NO_PRESENCE,6458.40
+"Naples, FL",FL,"Smart Home Installation",23.4,0,270,0.00,NO_PRESENCE,6318.00
+"Newark, NJ",NJ,"Artificial Turf Installation",19.7,0,276,0.00,NO_PRESENCE,5437.20
+"Naples, FL",FL,"Artificial Turf Installation",19.7,0,270,0.00,NO_PRESENCE,5319.00
+"Greenwich, CT",CT,"EV Charging Installation",27.11,0,104,0.00,NO_PRESENCE,2819.44
+"Amarillo, TX",TX,"EV Charging Installation",27.11,0,94,0.00,NO_PRESENCE,2548.34
+"Newark, NJ",NJ,"Outdoor Kitchen Installation",8.9,0,276,0.00,NO_PRESENCE,2456.40
+"Greenwich, CT",CT,"Smart Home Installation",23.4,0,104,0.00,NO_PRESENCE,2433.60
+"Naples, FL",FL,"Outdoor Kitchen Installation",8.9,0,270,0.00,NO_PRESENCE,2403.00
+"San Diego, CA",CA,"EV Charging Installation",27.11,0,88,0.00,NO_PRESENCE,2385.68
+"Newark, NJ",NJ,"Water Features Installation",8,0,276,0.00,NO_PRESENCE,2208.00
+"Amarillo, TX",TX,"Smart Home Installation",23.4,0,94,0.00,NO_PRESENCE,2199.60
+"Naples, FL",FL,"Water Features Installation",8,0,270,0.00,NO_PRESENCE,2160.00
+"San Diego, CA",CA,"Smart Home Installation",23.4,0,88,0.00,NO_PRESENCE,2059.20
+"Greenwich, CT",CT,"Artificial Turf Installation",19.7,0,104,0.00,NO_PRESENCE,2048.80
+"Amarillo, TX",TX,"Artificial Turf Installation",19.7,0,94,0.00,NO_PRESENCE,1851.80
+"San Diego, CA",CA,"Artificial Turf Installation",19.7,0,88,0.00,NO_PRESENCE,1733.60
+"Newark, NJ",NJ,"Custom Lighting Design",5.72,0,276,0.00,NO_PRESENCE,1578.72
+"Naples, FL",FL,"Custom Lighting Design",5.72,0,270,0.00,NO_PRESENCE,1544.40
+"Newark, NJ",NJ,"Outdoor Living Structures",5.3,0,276,0.00,NO_PRESENCE,1462.80
+"Naples, FL",FL,"Outdoor Living Structures",5.3,0,270,0.00,NO_PRESENCE,1431.00
+"Newark, NJ",NJ,"Foundation Repair",5,0,276,0.00,NO_PRESENCE,1380.00
+"Newark, NJ",NJ,"Basement Waterproofing",5,0,276,0.00,NO_PRESENCE,1380.00
+"Naples, FL",FL,"Foundation Repair",5,0,270,0.00,NO_PRESENCE,1350.00
+"Naples, FL",FL,"Basement Waterproofing",5,0,270,0.00,NO_PRESENCE,1350.00
+"Fort Collins, CO",CO,"EV Charging Installation",27.11,0,47,0.00,NO_PRESENCE,1274.17
+"Fort Collins, CO",CO,"Smart Home Installation",23.4,0,47,0.00,NO_PRESENCE,1099.80
+"Boulder, CO",CO,"EV Charging Installation",27.11,0,37,0.00,NO_PRESENCE,1003.07
+"Fort Collins, CO",CO,"Artificial Turf Installation",19.7,0,47,0.00,NO_PRESENCE,925.90
+"Greenwich, CT",CT,"Outdoor Kitchen Installation",8.9,0,104,0.00,NO_PRESENCE,925.60
+"Boulder, CO",CO,"Smart Home Installation",23.4,0,37,0.00,NO_PRESENCE,865.80
+"Amarillo, TX",TX,"Outdoor Kitchen Installation",8.9,0,94,0.00,NO_PRESENCE,836.60
+"Greenwich, CT",CT,"Water Features Installation",8,0,104,0.00,NO_PRESENCE,832.00
+"Phoenix, AZ",AZ,"EV Charging Installation",27.11,0,30,0.00,NO_PRESENCE,813.30
+"San Diego, CA",CA,"Outdoor Kitchen Installation",8.9,0,88,0.00,NO_PRESENCE,783.20
+"Amarillo, TX",TX,"Water Features Installation",8,0,94,0.00,NO_PRESENCE,752.00
+"Boulder, CO",CO,"Artificial Turf Installation",19.7,0,37,0.00,NO_PRESENCE,728.90
+"San Diego, CA",CA,"Water Features Installation",8,0,88,0.00,NO_PRESENCE,704.00
+"Phoenix, AZ",AZ,"Smart Home Installation",23.4,0,30,0.00,NO_PRESENCE,702.00
+"Coeur D Alene, ID",ID,"EV Charging Installation",27.11,0,25,0.00,NO_PRESENCE,677.75
+"Greenwich, CT",CT,"Custom Lighting Design",5.72,0,104,0.00,NO_PRESENCE,594.88
+"Phoenix, AZ",AZ,"Artificial Turf Installation",19.7,0,30,0.00,NO_PRESENCE,591.00
+"Coeur D Alene, ID",ID,"Smart Home Installation",23.4,0,25,0.00,NO_PRESENCE,585.00
+"Greenwich, CT",CT,"Outdoor Living Structures",5.3,0,104,0.00,NO_PRESENCE,551.20
+"Charlottesville, VA",VA,"EV Charging Installation",27.11,0,20,0.00,NO_PRESENCE,542.20
+"Amarillo, TX",TX,"Custom Lighting Design",5.72,0,94,0.00,NO_PRESENCE,537.68
+"Greenwich, CT",CT,"Foundation Repair",5,0,104,0.00,NO_PRESENCE,520.00
+"Greenwich, CT",CT,"Basement Waterproofing",5,0,104,0.00,NO_PRESENCE,520.00
+"San Diego, CA",CA,"Custom Lighting Design",5.72,0,88,0.00,NO_PRESENCE,503.36
+"Amarillo, TX",TX,"Outdoor Living Structures",5.3,0,94,0.00,NO_PRESENCE,498.20
+"Coeur D Alene, ID",ID,"Artificial Turf Installation",19.7,0,25,0.00,NO_PRESENCE,492.50
+"Amarillo, TX",TX,"Foundation Repair",5,0,94,0.00,NO_PRESENCE,470.00
+"Amarillo, TX",TX,"Basement Waterproofing",5,0,94,0.00,NO_PRESENCE,470.00
+"Charlottesville, VA",VA,"Smart Home Installation",23.4,0,20,0.00,NO_PRESENCE,468.00
+"San Diego, CA",CA,"Outdoor Living Structures",5.3,0,88,0.00,NO_PRESENCE,466.40
+"San Diego, CA",CA,"Foundation Repair",5,0,88,0.00,NO_PRESENCE,440.00
+"San Diego, CA",CA,"Basement Waterproofing",5,0,88,0.00,NO_PRESENCE,440.00
+"Fort Collins, CO",CO,"Outdoor Kitchen Installation",8.9,0,47,0.00,NO_PRESENCE,418.30
+"Charlottesville, VA",VA,"Artificial Turf Installation",19.7,0,20,0.00,NO_PRESENCE,394.00
+"Fort Collins, CO",CO,"Water Features Installation",8,0,47,0.00,NO_PRESENCE,376.00
+"Boulder, CO",CO,"Outdoor Kitchen Installation",8.9,0,37,0.00,NO_PRESENCE,329.30
+"Boulder, CO",CO,"Water Features Installation",8,0,37,0.00,NO_PRESENCE,296.00
+"Fort Collins, CO",CO,"Custom Lighting Design",5.72,0,47,0.00,NO_PRESENCE,268.84
+"Phoenix, AZ",AZ,"Outdoor Kitchen Installation",8.9,0,30,0.00,NO_PRESENCE,267.00
+"Fort Collins, CO",CO,"Outdoor Living Structures",5.3,0,47,0.00,NO_PRESENCE,249.10
+"Phoenix, AZ",AZ,"Water Features Installation",8,0,30,0.00,NO_PRESENCE,240.00
+"Fort Collins, CO",CO,"Foundation Repair",5,0,47,0.00,NO_PRESENCE,235.00
+"Fort Collins, CO",CO,"Basement Waterproofing",5,0,47,0.00,NO_PRESENCE,235.00
+"Coeur D Alene, ID",ID,"Outdoor Kitchen Installation",8.9,0,25,0.00,NO_PRESENCE,222.50
+"Boulder, CO",CO,"Custom Lighting Design",5.72,0,37,0.00,NO_PRESENCE,211.64
+"Coeur D Alene, ID",ID,"Water Features Installation",8,0,25,0.00,NO_PRESENCE,200.00
+"Boulder, CO",CO,"Outdoor Living Structures",5.3,0,37,0.00,NO_PRESENCE,196.10
+"Boulder, CO",CO,"Foundation Repair",5,0,37,0.00,NO_PRESENCE,185.00
+"Boulder, CO",CO,"Basement Waterproofing",5,0,37,0.00,NO_PRESENCE,185.00
+"Charlottesville, VA",VA,"Outdoor Kitchen Installation",8.9,0,20,0.00,NO_PRESENCE,178.00
+"Phoenix, AZ",AZ,"Custom Lighting Design",5.72,0,30,0.00,NO_PRESENCE,171.60
+"Charlottesville, VA",VA,"Water Features Installation",8,0,20,0.00,NO_PRESENCE,160.00
+"Phoenix, AZ",AZ,"Outdoor Living Structures",5.3,0,30,0.00,NO_PRESENCE,159.00
+"Phoenix, AZ",AZ,"Foundation Repair",5,0,30,0.00,NO_PRESENCE,150.00
+"Phoenix, AZ",AZ,"Basement Waterproofing",5,0,30,0.00,NO_PRESENCE,150.00
+"Coeur D Alene, ID",ID,"Custom Lighting Design",5.72,0,25,0.00,NO_PRESENCE,143.00
+"Coeur D Alene, ID",ID,"Outdoor Living Structures",5.3,0,25,0.00,NO_PRESENCE,132.50
+"Coeur D Alene, ID",ID,"Foundation Repair",5,0,25,0.00,NO_PRESENCE,125.00
+"Coeur D Alene, ID",ID,"Basement Waterproofing",5,0,25,0.00,NO_PRESENCE,125.00
+"Charlottesville, VA",VA,"Custom Lighting Design",5.72,0,20,0.00,NO_PRESENCE,114.40
+"Charlottesville, VA",VA,"Outdoor Living Structures",5.3,0,20,0.00,NO_PRESENCE,106.00
+"Charlottesville, VA",VA,"Foundation Repair",5,0,20,0.00,NO_PRESENCE,100.00
+"Charlottesville, VA",VA,"Basement Waterproofing",5,0,20,0.00,NO_PRESENCE,100.00

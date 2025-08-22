@@ -11,9 +11,12 @@
   --color-neutral-gray: #6B7280;
   
   /* Backgrounds */
-  --bg-dark: #111827;
+  --bg-dark: #000000;
   --bg-medium: #1F2937;
   --bg-light: #374151;
+  --page-bg: #000000;
+  --surface-bg: rgba(255, 255, 255, 0.04);
+  --surface-border: rgba(255, 255, 255, 0.08);
   
   /* Text Colors */
   --text-primary: rgba(255, 255, 255, 0.9);
@@ -36,6 +39,22 @@
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
+}
+
+/* Light theme overrides */
+html.light-theme, :root.light-theme {
+  /* Backgrounds */
+  --bg-dark: #ffffff;
+  --bg-medium: #f8fafc;
+  --bg-light: #e5e7eb;
+  --page-bg: #ffffff;
+  --surface-bg: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.08);
+
+  /* Text Colors */
+  --text-primary: #1f2937;
+  --text-secondary: rgba(31, 41, 55, 0.72);
+  --text-disabled: rgba(31, 41, 55, 0.5);
 }
 
 /* Typography */

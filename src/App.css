@@ -10,13 +10,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #111827;
-  color: #ffffff;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
 }
 
 .app {
   min-height: 100vh;
-  background-color: #111827;
+  background-color: var(--page-bg);
 }
 
 /* Scrollbar Styles */

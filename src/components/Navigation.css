@@ -13,7 +13,7 @@
 }
 
 /* Light theme variables */
-:root.light-theme {
+html.light-theme, :root.light-theme {
   --bg-secondary: rgba(248, 250, 252, 0.9);
   --bg-secondary-hover: rgba(241, 245, 249, 1);
   --bg-sidebar: #f8fafc;
@@ -22,6 +22,8 @@
   --border-sidebar: rgba(0, 0, 0, 0.18);
   --text-primary: #1f2937;
   --text-secondary: rgba(31, 41, 55, 0.9);
+  --surface-bg: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.1);
 }
 
 .navigation {
@@ -30,11 +32,13 @@
   gap: 12px;
   padding: 0 12px;
   height: 56px;
-  background-color: #000000;
+  background-color: var(--page-bg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   min-width: 0; /* Prevent overflow */
-  overflow: visible; /* Allow dropdown to be visible */
+  overflow: visible !important; /* Allow dropdown to be visible - force override */
   position: relative; /* For absolute positioning of hamburger menu */
+  justify-content: space-between; /* Distribute space between left and right sections */
+  z-index: 1000; /* Ensure navigation is above page content */
 }
 
 .nav-brand {
@@ -47,6 +51,21 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.nav-left-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Right side section holding action buttons and user avatar */
+.nav-right-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .nav-links {
@@ -94,12 +113,17 @@
     border-bottom: none;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     z-index: 100;
-    background-color: #000000;
+    background-color: var(--page-bg);
     backdrop-filter: blur(10px);
   }
 
   .nav-brand {
     display: none;
+  }
+
+  .nav-left-section {
+    width: 100%;
+    justify-content: center;
   }
 
   .nav-links {
@@ -188,8 +212,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-left: auto; /* Push to the right, but leave space for user dropdown */
-  margin-right: 8px;
+  margin-left: 12px;
   flex-shrink: 0; /* Don't shrink these buttons */
 }
 
@@ -236,8 +259,15 @@
 .nav-user {
   position: relative;
   flex-shrink: 0; /* Never shrink the user dropdown */
-  margin-left: 0;
   z-index: 10001; /* Ensure user dropdown stays above other elements */
+}
+
+.nav-user-desktop {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  position: static; /* Don't create a new positioning context */
+  z-index: 10002; /* Ensure dropdown appears above other elements */
 }
 
 .user-dropdown-trigger {
@@ -323,22 +353,24 @@
 /* Dropdown Menu */
 .user-dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px); /* More precise positioning */
   right: 0;
-  margin-top: 12px;
   width: 280px;
   max-height: 400px;
-  background: rgba(31, 41, 59, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(20px);
-  z-index: 10000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  z-index: 100000; /* Very high z-index to ensure visibility */
   overflow: hidden;
-  /* Add a subtle inner glow */
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: auto; /* ensure menu captures clicks */
+}
+
+/* Light theme dropdown styles */
+html.light-theme .user-dropdown-menu {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-header {
@@ -346,8 +378,12 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(59, 130, 246, 0.05);
-  border-bottom: 1px solid var(--border-sidebar);
+  background: transparent;
+  border-bottom: 1px solid var(--border-sidebar, rgba(255, 255, 255, 0.1));
+}
+
+html.light-theme .dropdown-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .user-avatar-large {
@@ -405,10 +441,11 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   text-align: left;
+  pointer-events: auto; /* ensure items are clickable */
 }
 
 .dropdown-item:hover {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dropdown-item-icon {
@@ -481,10 +518,6 @@
 }
 
 /* Desktop and Mobile User Dropdown Containers */
-.nav-user-desktop {
-  display: block;
-}
-
 .mobile-top-bar {
   display: none;
 }
@@ -502,7 +535,7 @@
     align-items: center;
     width: 100%;
     padding: 12px 16px;
-    background: #000000;
+    background: var(--page-bg);
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     z-index: 10002; /* Above everything including admin tools */
   }
