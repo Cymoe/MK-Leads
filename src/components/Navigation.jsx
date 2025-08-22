@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { MapPin, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu, X, TrendingUp } from 'lucide-react'
+import { MapPin, LayoutDashboard, Download, Database, LogOut, User, Sun, Moon, ChevronDown, Plus, Upload, Menu, X, TrendingUp, Briefcase } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import CryptoJS from 'crypto-js'
 import './Navigation.css'
@@ -263,6 +263,10 @@ function Navigation({ session }) {
             <NavLink to="/market-intelligence" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <TrendingUp size={18} />
               <span>Intelligence</span>
+            </NavLink>
+            <NavLink to="/acquisitions" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Briefcase size={18} />
+              <span>Acquisitions</span>
             </NavLink>
             <NavLink to="/leads" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <Database size={18} />

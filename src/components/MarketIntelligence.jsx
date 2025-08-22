@@ -213,6 +213,262 @@ function MarketIntelligence() {
       services: ['EV Charging', 'Foundation Repair', 'Weatherization'],
       score: 87,
       region: 'Midwest'
+    },
+    // Wealthy Boomer Destinations
+    {
+      name: 'Naples, FL',
+      growth: '8.7%',
+      population: '22,000',
+      previousPop: '20,200',
+      opportunity: 'Very High ($$$)',
+      services: ['Luxury Smart Home', 'Hurricane Protection', 'Concierge Tech'],
+      score: 96,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'The Villages, FL',
+      growth: '39%',
+      population: '130,000',
+      previousPop: '93,000',
+      opportunity: 'Very High',
+      services: ['Medical Tech', 'Golf Cart Custom', 'Home Health'],
+      score: 94,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'Sarasota, FL',
+      growth: '7.8%',
+      population: '58,000',
+      previousPop: '53,800',
+      opportunity: 'Very High ($$$)',
+      services: ['Beach Home Tech', 'Luxury Pool', 'Smart Security'],
+      score: 92,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'Charleston, SC',
+      growth: '10.2%',
+      population: '150,000',
+      previousPop: '136,000',
+      opportunity: 'High ($$$)',
+      services: ['Historic Retrofit', 'Flood Defense', 'Luxury HVAC'],
+      score: 91,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'Hilton Head, SC',
+      growth: '6.3%',
+      population: '40,000',
+      previousPop: '37,600',
+      opportunity: 'Very High ($$$)',
+      services: ['Resort Tech', 'Climate Resilience', 'Yacht Services'],
+      score: 93,
+      region: 'Boomer Gold'
+    },
+    // Migration Leaders
+    {
+      name: 'Conway, SC',
+      growth: '44.7%',
+      population: '27,000',
+      previousPop: '18,600',
+      opportunity: 'Very High',
+      services: ['Outdoor Living', 'Smart Home', 'Pool/Spa'],
+      score: 97,
+      region: 'Migration Leaders'
+    },
+    {
+      name: 'Little River, SC',
+      growth: '35.2%',
+      population: '14,500',
+      previousPop: '10,700',
+      opportunity: 'Very High',
+      services: ['Beach Services', 'Hurricane Prep', 'Luxury Outdoor'],
+      score: 94,
+      region: 'Migration Leaders'
+    },
+    {
+      name: 'Salisbury, MD',
+      growth: '33.7%',
+      population: '35,000',
+      previousPop: '26,200',
+      opportunity: 'High',
+      services: ['Energy Efficiency', 'Smart Home', 'Home Office'],
+      score: 92,
+      region: 'Migration Leaders'
+    },
+    {
+      name: 'Fort Mill, SC',
+      growth: '29.8%',
+      population: '25,000',
+      previousPop: '19,200',
+      opportunity: 'High',
+      services: ['Family Tech', 'Outdoor Living', 'EV Charging'],
+      score: 91,
+      region: 'Migration Leaders'
+    },
+    {
+      name: 'Rock Hill, SC',
+      growth: '24.3%',
+      population: '75,000',
+      previousPop: '60,300',
+      opportunity: 'High',
+      services: ['ADU Construction', 'Smart Security', 'Solar'],
+      score: 89,
+      region: 'Migration Leaders'
+    },
+    // Secondary Cities
+    {
+      name: 'Murfreesboro, TN',
+      growth: '21.5%',
+      population: '165,000',
+      previousPop: '135,800',
+      opportunity: 'High',
+      services: ['Smart Home', 'Pool Services', 'Home Automation'],
+      score: 88,
+      region: 'Secondary Cities'
+    },
+    {
+      name: 'Madison, AL',
+      growth: '23.7%',
+      population: '60,000',
+      previousPop: '48,500',
+      opportunity: 'High',
+      services: ['Tech Workers', 'Smart Home', 'Luxury Outdoor'],
+      score: 90,
+      region: 'Secondary Cities'
+    },
+    {
+      name: 'Huntsville Metro, AL',
+      growth: '19.2%',
+      population: '230,000',
+      previousPop: '193,000',
+      opportunity: 'High',
+      services: ['Aerospace Tech', 'Smart Security', 'EV Infrastructure'],
+      score: 87,
+      region: 'Secondary Cities'
+    },
+    {
+      name: 'Clermont, FL',
+      growth: '26.8%',
+      population: '48,000',
+      previousPop: '37,800',
+      opportunity: 'High',
+      services: ['Lake Living', 'Hurricane Prep', 'Pool/Spa'],
+      score: 89,
+      region: 'Secondary Cities'
+    },
+    {
+      name: 'St. Cloud, FL',
+      growth: '22.4%',
+      population: '60,000',
+      previousPop: '49,000',
+      opportunity: 'High',
+      services: ['Family Services', 'Smart Home', 'Solar'],
+      score: 86,
+      region: 'Secondary Cities'
+    },
+    // Climate Haven Cities
+    {
+      name: 'Asheville, NC',
+      growth: '15.8%',
+      population: '95,000',
+      previousPop: '82,000',
+      opportunity: 'High ($$$)',
+      services: ['Green Tech', 'Solar+Battery', 'Water Harvest'],
+      score: 91,
+      region: 'Climate Havens'
+    },
+    {
+      name: 'Burlington, VT',
+      growth: '12.3%',
+      population: '45,000',
+      previousPop: '40,100',
+      opportunity: 'High ($$$)',
+      services: ['Energy Efficiency', 'Smart HVAC', 'Green Building'],
+      score: 88,
+      region: 'Climate Havens'
+    },
+    {
+      name: 'Ann Arbor, MI',
+      growth: '11.2%',
+      population: '125,000',
+      previousPop: '112,500',
+      opportunity: 'High ($$$)',
+      services: ['Smart Home', 'EV Charging', 'Geothermal'],
+      score: 87,
+      region: 'Climate Havens'
+    },
+    {
+      name: 'Traverse City, MI',
+      growth: '14.6%',
+      population: '16,000',
+      previousPop: '14,000',
+      opportunity: 'High',
+      services: ['Lake Services', 'Green Tech', 'Smart Home'],
+      score: 86,
+      region: 'Climate Havens'
+    },
+    // Resource Boom Towns
+    {
+      name: 'Midland/Odessa, TX',
+      growth: '18.5%',
+      population: '340,000',
+      previousPop: '287,000',
+      opportunity: 'Boom-Bust',
+      services: ['Industrial HVAC', 'Dust Control', 'Security'],
+      score: 85,
+      region: 'Boom Towns'
+    },
+    {
+      name: 'Williston, ND',
+      growth: '22.1%',
+      population: '29,000',
+      previousPop: '23,800',
+      opportunity: 'Boom-Bust',
+      services: ['Modular Housing', 'Heavy-Duty Systems', 'Emergency Power'],
+      score: 84,
+      region: 'Boom Towns'
+    },
+    {
+      name: 'Elko, NV',
+      growth: '19.7%',
+      population: '21,000',
+      previousPop: '17,500',
+      opportunity: 'High (Lithium)',
+      services: ['Industrial Services', 'Worker Housing', 'HVAC'],
+      score: 86,
+      region: 'Boom Towns'
+    },
+    // Additional Retiree Markets
+    {
+      name: 'Prescott, AZ',
+      growth: '13.2%',
+      population: '48,000',
+      previousPop: '42,400',
+      opportunity: 'High ($$$)',
+      services: ['Senior Tech', 'Desert Landscape', 'Smart Security'],
+      score: 89,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'Bend, OR',
+      growth: '16.8%',
+      population: '100,000',
+      previousPop: '85,600',
+      opportunity: 'Very High ($$$)',
+      services: ['Outdoor Tech', 'Smart Home', 'Luxury Services'],
+      score: 92,
+      region: 'Boomer Gold'
+    },
+    {
+      name: 'Coeur d\'Alene, ID',
+      growth: '14.9%',
+      population: '56,000',
+      previousPop: '48,700',
+      opportunity: 'High ($$$)',
+      services: ['Lake Home Tech', 'Smart Security', 'Luxury Outdoor'],
+      score: 90,
+      region: 'Boomer Gold'
     }
   ]
 
@@ -295,6 +551,19 @@ function MarketIntelligence() {
       ],
       icon: Leaf,
       color: '#059669'
+    },
+    {
+      category: 'Luxury Aging-in-Place',
+      growth: '25.3% annually',
+      marketSize: '$45B by 2030',
+      opportunities: [
+        'Concierge tech support ($500-1K/mo)',
+        'Voice-controlled everything',
+        'Luxury accessibility retrofits',
+        'Legacy preservation studios'
+      ],
+      icon: DollarSign,
+      color: '#fbbf24'
     }
   ]
 
@@ -359,6 +628,16 @@ function MarketIntelligence() {
       competition: 'None integrated',
       icon: Leaf,
       color: '#059669'
+    },
+    {
+      name: 'Complete Retirement Lifestyle',
+      components: ['Luxury Smart Home', 'Health Monitoring', 'Concierge Support', 'Climate Defense'],
+      avgValue: '$125,000',
+      margin: '55%',
+      taxIncentive: 'Medicare eligible',
+      competition: 'Zero integrated',
+      icon: DollarSign,
+      color: '#fbbf24'
     }
   ]
 
@@ -369,10 +648,12 @@ function MarketIntelligence() {
     year: '2033',
     cagr: '19.7%',
     keyDrivers: [
+      'Baby Boomers control $75 trillion in wealth',
+      '10,000 Boomers retire daily through 2030',
+      '65% of Boomers pay cash for services',
       '2M+ urban exodus to suburbs',
       'Millennials driving demand',
-      '70% prefer eco-services',
-      'Remote work home upgrades'
+      '70% prefer eco-services'
     ]
   }
 
@@ -410,6 +691,17 @@ function MarketIntelligence() {
       reasoning: '10,000 boomers retire daily. Tech anxiety creates recurring revenue opportunity.',
       icon: Users,
       color: '#3b82f6'
+    },
+    {
+      rank: 4,
+      name: 'Luxury Boomer Services',
+      focus: 'Naples/Sarasota, FL',
+      avgTicket: '$75,000-150,000',
+      margin: '55%',
+      growth: '25.3% CAGR',
+      reasoning: 'Wealthy retirees with $2M+ assets want premium aging-in-place solutions. Cash buyers.',
+      icon: DollarSign,
+      color: '#fbbf24'
     }
   ]
 
@@ -557,6 +849,13 @@ function MarketIntelligence() {
           <Target size={16} />
           Strategic Analysis
         </button>
+        <button 
+          className={`tab-button ${activeTab === 'migration' ? 'active' : ''}`}
+          onClick={() => setActiveTab('migration')}
+        >
+          <MapPin size={16} />
+          Migration Markets
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -605,6 +904,36 @@ function MarketIntelligence() {
                 onClick={() => setSelectedRegion('Pacific NW')}
               >
                 Pacific NW ({growthCities.filter(c => c.region === 'Pacific NW').length})
+              </button>
+              <button 
+                className={`filter-btn ${selectedRegion === 'Boomer Gold' ? 'active' : ''}`}
+                onClick={() => setSelectedRegion('Boomer Gold')}
+              >
+                💰 Boomer Gold ({growthCities.filter(c => c.region === 'Boomer Gold').length})
+              </button>
+              <button 
+                className={`filter-btn ${selectedRegion === 'Migration Leaders' ? 'active' : ''}`}
+                onClick={() => setSelectedRegion('Migration Leaders')}
+              >
+                Migration Leaders ({growthCities.filter(c => c.region === 'Migration Leaders').length})
+              </button>
+              <button 
+                className={`filter-btn ${selectedRegion === 'Secondary Cities' ? 'active' : ''}`}
+                onClick={() => setSelectedRegion('Secondary Cities')}
+              >
+                Secondary Cities ({growthCities.filter(c => c.region === 'Secondary Cities').length})
+              </button>
+              <button 
+                className={`filter-btn ${selectedRegion === 'Climate Havens' ? 'active' : ''}`}
+                onClick={() => setSelectedRegion('Climate Havens')}
+              >
+                Climate Havens ({growthCities.filter(c => c.region === 'Climate Havens').length})
+              </button>
+              <button 
+                className={`filter-btn ${selectedRegion === 'Boom Towns' ? 'active' : ''}`}
+                onClick={() => setSelectedRegion('Boom Towns')}
+              >
+                ⚡ Boom Towns ({growthCities.filter(c => c.region === 'Boom Towns').length})
               </button>
             </div>
             
@@ -746,7 +1075,7 @@ function MarketIntelligence() {
 
             {/* Priority Services */}
             <div className="priority-services">
-              <h4>Top 3 Services to Launch</h4>
+              <h4>Top 4 Services to Launch</h4>
               <div className="priority-grid">
                 {priorityServices.map((service) => {
                   const Icon = service.icon
@@ -856,6 +1185,164 @@ function MarketIntelligence() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'migration' && (
+          <div className="migration-markets">
+            <div className="section-intro">
+              <h3>🌊 Migration Wave Analysis</h3>
+              <p>Beyond boom towns: Where Americans are actually moving and what they need</p>
+            </div>
+
+            {/* Migration Market Types */}
+            <div className="market-types-grid">
+              <div className="market-type-card">
+                <div className="market-type-header">
+                  <h4>🏘️ Secondary Cities</h4>
+                  <span className="market-count">{growthCities.filter(c => c.region === 'Secondary Cities').length} markets</span>
+                </div>
+                <div className="target-demo">Young families, remote workers</div>
+                <div className="key-services">
+                  <h5>High-Demand Services:</h5>
+                  <ul>
+                    <li>Smart Home Installation (68% want connected homes)</li>
+                    <li>Home Office Buildouts ($15-30K projects)</li>
+                    <li>Outdoor Living Spaces (35-52% growth)</li>
+                    <li>EV Charging Stations (future-proofing)</li>
+                    <li>Energy Efficiency Upgrades (31-55% growth)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="market-type-card">
+                <div className="market-type-header">
+                  <h4>☀️ Climate Haven Cities</h4>
+                  <span className="market-count">{growthCities.filter(c => c.region === 'Climate Havens').length} markets</span>
+                </div>
+                <div className="target-demo">Educated, environmentally conscious</div>
+                <div className="key-services">
+                  <h5>Priority Services:</h5>
+                  <ul>
+                    <li>Solar + Battery Storage Systems</li>
+                    <li>Rainwater Harvesting ($8-15K)</li>
+                    <li>Home Food Production (greenhouses)</li>
+                    <li>Air Quality Systems (HEPA/ERV)</li>
+                    <li>Wildfire Defense (defensible space)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="market-type-card">
+                <div className="market-type-header">
+                  <h4>⚡ Resource Boom Towns</h4>
+                  <span className="market-count">{growthCities.filter(c => c.region === 'Boom Towns').length} markets</span>
+                </div>
+                <div className="target-demo">Transient workers, high income</div>
+                <div className="key-services">
+                  <h5>Immediate Needs:</h5>
+                  <ul>
+                    <li>Modular Housing Setup</li>
+                    <li>Industrial-Grade HVAC</li>
+                    <li>Security Services (theft prevention)</li>
+                    <li>Dust Control Systems</li>
+                    <li>Emergency Power Solutions</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="market-type-card">
+                <div className="market-type-header">
+                  <h4>💰 Wealthy Retirees</h4>
+                  <span className="market-count">{growthCities.filter(c => c.region === 'Boomer Gold').length} markets</span>
+                </div>
+                <div className="target-demo">$2M+ assets, cash buyers</div>
+                <div className="key-services">
+                  <h5>Premium Services:</h5>
+                  <ul>
+                    <li>Luxury Aging-in-Place ($50-150K)</li>
+                    <li>Concierge Tech Support ($500-1K/mo)</li>
+                    <li>Medical Alert Systems</li>
+                    <li>Climate Control Optimization</li>
+                    <li>Legacy Preservation Studios</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Migration Destinations */}
+            <div className="migration-leaders-section">
+              <h4>🏆 Top Migration Destinations</h4>
+              <div className="migration-grid">
+                {growthCities
+                  .filter(city => city.region === 'Migration Leaders')
+                  .map((city, index) => (
+                  <div key={index} className="migration-card">
+                    <div className="migration-rank">#{index + 1}</div>
+                    <div className="migration-info">
+                      <h5>{city.name}</h5>
+                      <div className="migration-stats">
+                        <span className="growth">↗ {city.growth} growth</span>
+                        <span className="pop">{city.population} residents</span>
+                      </div>
+                      <div className="migration-services">
+                        {city.services.map((service, idx) => (
+                          <span key={idx} className="service-chip">{service}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Universal Services */}
+            <div className="universal-services">
+              <h4>📈 Universal High-Growth Services</h4>
+              <p>Services in demand across ALL migration markets:</p>
+              <div className="universal-grid">
+                <div className="universal-item">
+                  <div className="universal-icon" style={{ backgroundColor: '#10b981' }}>
+                    <Zap size={20} color="white" />
+                  </div>
+                  <div className="universal-content">
+                    <h5>EV Charging Infrastructure</h5>
+                    <span className="growth-badge">35-52% growth</span>
+                    <p>Every market needs this, complexity varies</p>
+                  </div>
+                </div>
+                <div className="universal-item">
+                  <div className="universal-icon" style={{ backgroundColor: '#3b82f6' }}>
+                    <Shield size={20} color="white" />
+                  </div>
+                  <div className="universal-content">
+                    <h5>Water Management</h5>
+                    <span className="growth-badge">31-47% growth</span>
+                    <p>From xeriscaping to drainage solutions</p>
+                  </div>
+                </div>
+                <div className="universal-item">
+                  <div className="universal-icon" style={{ backgroundColor: '#8b5cf6' }}>
+                    <Home size={20} color="white" />
+                  </div>
+                  <div className="universal-content">
+                    <h5>Smart Home Integration</h5>
+                    <span className="growth-badge">28-45% growth</span>
+                    <p>Critical for all demographics</p>
+                  </div>
+                </div>
+                <div className="universal-item">
+                  <div className="universal-icon" style={{ backgroundColor: '#f59e0b' }}>
+                    <DollarSign size={20} color="white" />
+                  </div>
+                  <div className="universal-content">
+                    <h5>Subscription Maintenance</h5>
+                    <span className="growth-badge">19-34% growth</span>
+                    <p>Predictable revenue in any market</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

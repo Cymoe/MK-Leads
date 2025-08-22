@@ -15,6 +15,7 @@ import TestAiFiltering from './pages/TestAiFiltering'
 import DataCleanup from './pages/DataCleanup'
 import AIMetrics from './pages/AIMetrics'
 import MarketIntelligence from './pages/MarketIntelligence'
+import BusinessAcquisitions from './pages/BusinessAcquisitions'
 import './App.css'
 
 function App() {
@@ -166,6 +167,7 @@ function App() {
           } />
           <Route path="/ai-metrics" element={<AIMetrics session={session} />} />
           <Route path="/market-intelligence" element={<MarketIntelligence session={session} />} />
+          <Route path="/acquisitions" element={<BusinessAcquisitions session={session} />} />
         </Routes>
         <ToastContainer toasts={toasts} removeToast={removeToast} />
       </div>

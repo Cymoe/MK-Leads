@@ -1,0 +1,766 @@
+/* Business Acquisitions Page Styles */
+.acquisitions-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.acquisitions-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.acquisitions-header h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 16px 0;
+}
+
+.acquisitions-header p {
+  font-size: 18px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Stats Overview */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+.stat-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: #475569;
+  transform: translateY(-2px);
+}
+
+.stat-card.highlight {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-color: #3b82f6;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #334155;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn:hover {
+  color: #cbd5e1;
+}
+
+.tab-btn.active {
+  color: #f1f5f9;
+  border-bottom-color: #3b82f6;
+}
+
+/* Tab Content */
+.tab-content {
+  margin-bottom: 48px;
+}
+
+.business-category {
+  animation: fadeIn 0.3s ease;
+}
+
+.category-header {
+  margin-bottom: 32px;
+}
+
+.category-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 8px 0;
+}
+
+.category-header p {
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Business Grid */
+.business-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.business-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.business-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.business-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.business-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.business-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+/* Business Metrics */
+.business-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.metric-value.highlight {
+  color: #10b981;
+}
+
+/* Why It Works */
+.why-it-works {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #0f172a;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.why-it-works svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* Geographic Strategy */
+.geographic-strategy {
+  animation: fadeIn 0.3s ease;
+}
+
+.strategy-section {
+  margin-bottom: 48px;
+}
+
+.strategy-section h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 8px 0;
+}
+
+.strategy-section > p {
+  color: #94a3b8;
+  margin: 0 0 24px 0;
+}
+
+/* Hotspots Grid */
+.hotspots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.hotspot-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.hotspot-card:hover {
+  border-color: #10b981;
+  transform: translateY(-2px);
+}
+
+.hotspot-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 12px 0;
+}
+
+.hotspot-stat {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.opportunity-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.opportunity-badge.very-high {
+  background: #10b981;
+  color: white;
+}
+
+.opportunity-badge.high {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Valuation Table */
+.valuation-table {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  padding: 16px 20px;
+}
+
+.table-header {
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  font-weight: 600;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.table-row {
+  border-bottom: 1px solid #334155;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: #1e293b40;
+}
+
+.table-row > div {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.table-row > div:first-child {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.multiple {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.financing {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Strategy Grid */
+.strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.strategy-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.strategy-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.strategy-card svg {
+  color: #3b82f6;
+  margin-bottom: 12px;
+}
+
+.strategy-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 8px 0;
+}
+
+.strategy-card p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.cta-content {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.cta-content > svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.cta-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 16px 0;
+}
+
+.cta-content ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.cta-content li {
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+/* Marketplaces */
+.marketplaces h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 12px 0;
+}
+
+.marketplace-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.marketplace-list span {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* Top 10 Businesses Styles */
+.top10-businesses {
+  animation: fadeIn 0.3s ease;
+}
+
+.top10-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.top10-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.top10-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.rank-badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+}
+
+.top10-header {
+  margin-bottom: 20px;
+  padding-right: 40px;
+}
+
+.top10-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 8px 0;
+}
+
+.why-top {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.top10-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #0f172a;
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-row .metric-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.metric-row .metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.metric-value.growth {
+  color: #10b981;
+}
+
+.metric-value.highlight {
+  color: #10b981;
+}
+
+.metric-value.multiple {
+  color: #3b82f6;
+}
+
+.metric-value.boomer {
+  color: #f59e0b;
+}
+
+/* Financial Profile Section */
+.financial-profile-section {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 32px;
+  margin-top: 32px;
+}
+
+.financial-profile-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 24px 0;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #0f172a;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+
+.profile-item svg {
+  color: #3b82f6;
+}
+
+.profile-item .label {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-right: auto;
+}
+
+.profile-item .value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f5f9;
+  text-align: right;
+}
+
+/* Updated Geographic Styles */
+.state-rank {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #3b82f6;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.best-markets {
+  margin: 12px 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.best-markets strong {
+  color: #cbd5e1;
+}
+
+/* Hidden Gems Grid */
+.gems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.gem-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.gem-card:hover {
+  border-color: #f59e0b;
+  transform: translateY(-2px);
+}
+
+.gem-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gem-header svg {
+  color: #f59e0b;
+}
+
+.gem-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.gem-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.detail-row .label {
+  color: #64748b;
+}
+
+.detail-row .value {
+  color: #94a3b8;
+  text-align: right;
+}
+
+.detail-row .value.highlight {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .acquisitions-container {
+    padding: 0 16px 32px;
+  }
+
+  .acquisitions-header h1 {
+    font-size: 32px;
+  }
+
+  .acquisitions-header p {
+    font-size: 16px;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .category-tabs {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .business-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .business-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .hotspots-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header,
+  .table-row {
+    font-size: 12px;
+    padding: 12px 16px;
+  }
+
+  .strategy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
